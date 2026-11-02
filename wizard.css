@@ -1,0 +1,527 @@
+/* ===========================================================================
+   THE QUESTIONNAIRE LAYER, ported from comp-plan-wizard-v3.html on 26 October.
+
+   The wizard and the mock-up were two halves of one product that had never been
+   on the same page. This is the wizard's half, restyled onto the mock-up's
+   tokens so the two stop reading as different products.
+
+   WHAT CHANGED FROM THE WIZARD, and nothing else did:
+
+     the blue    #1f5fd6 everywhere  ->  var(--brand) #1f4e79
+     the soft    #eaf1fd             ->  var(--brand-soft)
+     panel/line/ink/muted            ->  the mock-up's surface / line / ink tokens
+     radii                           ->  --r-md and --r-lg
+     the nav buttons                 ->  the mock-up's .btn, with .primary added
+
+   THE ANSWER CELLS KEEP THEIR SHAPE. The mock-up has no equivalent of a
+   twenty-question picker, so inventing one would be a redesign rather than a
+   merge. They take the tokens and keep their structure. Javier, 26 Oct: "Not
+   sure the actual answers need to be modified."
+
+   THE FRAME IS NOT HERE. The top bar and the file rail belong to the simulator.
+   During the questionnaire and on the plan view there is no frame at all, which
+   is what the layer model always said: every screen floats over a blurred
+   preview of the next one. Javier, 26 Oct.
+   =========================================================================== */
+
+/* ---- the twelve tokens this page uses and never defines ------------------
+   THE WHOLE FILE WAS SILENT. index.html loads base.css, mock.css and this one.
+   It does NOT load tokens.css, so var(--surface), var(--brand), var(--r-lg),
+   var(--shadow-pop) and nine more resolved to nothing and the browser threw
+   away every declaration that held one: no card backgrounds, no borders, no
+   radii, no blue, no shadow. That is Javier's 26 Oct report exactly, "nothing
+   is readable, the colors are not there".
+
+   mock.css walked into this same wall on 10 Oct and shimmed the four tokens it
+   needed, with a comment saying "23 declarations, all silent". I read that
+   comment while writing this file and still took the tokens on faith.
+
+   SCOPED TO #wizard, NOT :root, and that is deliberate. mock.css line 936 reads
+   var(--brand-soft, #cdd9e6); defining --brand-soft globally would quietly
+   repaint a step row Javier has already signed off. A scoped block cannot reach
+   the console, and custom properties inherit, so every layer inside #wizard
+   gets them.
+
+   WHAT IS NOT HERE, on purpose: --ink, --line, --ink-soft, --ink-faint,
+   --line-strong, --surface-sunk and the finding tones (--warn, --bad, --good
+   and their softs). base.css and mock.css already define those at :root, and
+   borrowing theirs rather than tokens.css's is what makes the plan body and the
+   console agree on what a warning looks like. Values below copied from
+   tokens.css. */
+#wizard{
+  --paper:#eef1f5; --surface:#ffffff;
+  --brand:#1f4e79; --brand-soft:#e8eef5; --brand-ink:#ffffff;
+  --r-md:6px; --r-lg:8px;
+  --t-small:12px; --t-body:13px; --track-caps:.08em;
+  --shadow-card:0 1px 2px rgba(22,32,44,.05);
+  --shadow-pop:0 6px 24px rgba(22,32,44,.18);
+}
+#wizard *{box-sizing:border-box;}
+
+/* ---- the layer ---------------------------------------------------------- */
+/* Every questionnaire screen floats over a blurred live preview of the plan it
+   is building, so the reader can see the thing forming behind their answers.
+
+   THE CONSOLE IS HIDDEN WHILE THIS IS UP, not covered. `body.wz-locked` set
+   overflow:hidden, which mock.css already sets on html and body, so it did
+   nothing at all and the frame stayed in the page: its dev bar is sticky at
+   z-index 300 and beat these layers, and the rest of it showed through the
+   moment a card lost its background. Covering it was never the intent anyway.
+   The layer model says there is no frame before the simulator, because three of
+   its four top buttons point at things that do not exist yet.
+
+   THE DEV BAR WAS THE EXCEPTION and stayed on top, because Javier asked for it:
+   "the black bar to the preset so I can escape the questionnaire would be
+   really useful". So the layers started below it rather than under it, at
+   --dev-h, which was 30px in the mock-up. The bar came out for production on
+   29 Oct and nothing defines --dev-h any more, so the 0px fallback is what
+   runs. */
+body.wz-on #frame{display:none !important;}
+#wizard[hidden]{display:none !important;}
+.wz-blurwrap{
+  position:fixed; inset:var(--dev-h,0px) 0 0 0; overflow:hidden; padding:26px 20px;
+  display:flex; justify-content:center; background:var(--paper);
+}
+.wz-blurbg{
+  filter:blur(7px); opacity:.5; pointer-events:none; user-select:none;
+  max-width:780px; width:100%;
+}
+.wz-scrim{
+  position:fixed; inset:var(--dev-h,0px) 0 0 0; background:rgba(22,32,44,.35); z-index:9;
+  display:flex; align-items:flex-start; justify-content:center;
+  overflow-y:auto; padding:40px 20px;
+}
+.wz-card{
+  background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--r-lg); padding:26px;
+}
+.wz-modal{
+  position:relative; z-index:10; max-width:620px; width:100%;
+  box-shadow:var(--shadow-pop);
+}
+
+/* ---- type inside the layer ---------------------------------------------- */
+/* Scoped to #wizard so none of it reaches the console, which has its own. */
+#wizard h1,#wizard h2,#wizard p,#wizard li{text-wrap:pretty;}
+#wizard h1{font-size:25px; line-height:1.22; margin:0 0 14px; letter-spacing:-.02em;}
+#wizard h2{font-size:19px; line-height:1.3;  margin:0 0 6px;  letter-spacing:-.01em;}
+#wizard h3{
+  font-size:12.5px; text-transform:uppercase; letter-spacing:var(--track-caps);
+  color:var(--ink-soft); margin:26px 0 10px; font-weight:650;
+}
+#wizard p{margin:0 0 13px;}
+#wizard .wz-lede{color:var(--ink-soft);}
+#wizard ul.wz-plain{margin:0 0 20px; padding-left:20px;}
+#wizard ul.wz-plain li{margin-bottom:6px;}
+#wizard ul.wz-plain li:last-child{margin-bottom:0;}
+
+/* ---- the progress dashes ------------------------------------------------ */
+.wz-steps{display:flex; gap:8px; align-items:center; margin-bottom:20px;}
+.wz-grp{display:flex; gap:3px;}
+.wz-step{height:5px; width:16px; border-radius:3px; background:var(--line);}
+.wz-step.done{background:var(--brand);}
+.wz-step.now{background:var(--brand); opacity:.5;}
+
+/* ---- the section label and question number ------------------------------ */
+.wz-cat{
+  font-size:var(--t-small); text-transform:uppercase; letter-spacing:var(--track-caps);
+  color:var(--brand); font-weight:650; margin-bottom:10px;
+}
+.wz-qnum{font-size:var(--t-body); color:var(--ink-soft); margin:-4px 0 10px;}
+
+/* ---- the answer cells --------------------------------------------------- */
+.wz-opts{display:flex; flex-direction:column; gap:9px; margin:18px 0 0;}
+.wz-opt{
+  display:block; width:100%; text-align:left; cursor:pointer;
+  background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--r-md); padding:13px 15px; font:inherit;
+  color:inherit; transition:.12s;
+}
+.wz-opt:hover{border-color:var(--brand);}
+.wz-opt.sel{
+  border-color:var(--brand); background:var(--brand-soft);
+  box-shadow:inset 0 0 0 2px var(--brand);
+}
+/* Dashed, because "Let Simulator Decide" is an answer of a different kind. */
+.wz-opt.auto{border-style:dashed;}
+.wz-opt b{font-weight:600; display:block;}
+.wz-opt small{color:var(--ink-soft); display:block; margin-top:2px;}
+
+/* ---- why are we asking this --------------------------------------------- */
+.wz-whybtn{
+  margin-top:16px; background:none; border:none; padding:0; cursor:pointer;
+  color:var(--brand); font:inherit; font-size:13.5px;
+  text-decoration:underline; text-underline-offset:3px;
+}
+.wz-why{
+  margin-top:11px; padding:13px 15px; background:var(--brand-soft);
+  border-radius:var(--r-md); font-size:14px;
+}
+.wz-why p{margin:0;}
+
+/* ---- the footer nav ----------------------------------------------------- */
+.wz-nav{
+  display:flex; justify-content:space-between; gap:10px;
+  margin-top:22px; align-items:center;
+}
+.wz-navright{display:flex; gap:18px; align-items:center;}
+
+/* THE BUTTONS ARE THE MOCK-UP'S. Same rule as shell.css's .btn, repeated here
+   rather than imported because shell.css is scoped to the console frame and
+   this layer sits outside it. A filled `primary` is added, which the mock-up
+   never needed and a questionnaire cannot do without: every screen has one
+   forward action and it has to look like the forward action. */
+#wizard .btn{
+  font:inherit; font-size:var(--t-small); font-weight:600;
+  letter-spacing:var(--track-caps); text-transform:uppercase;
+  color:var(--ink); background:var(--surface);
+  border:1px solid var(--line); border-radius:var(--r-md);
+  padding:9px 18px; cursor:pointer; white-space:nowrap;
+  box-shadow:var(--shadow-card);
+}
+/* Fills blue on hover, which is what every button in the console does
+   (mock.css `.topbar .navbtn:hover`). It was going to a slightly darker border
+   and nothing else, so the one shared control on the plan view behaved unlike
+   every other button in the product. Javier, 26 Oct. */
+#wizard .btn:hover{border-color:var(--brand); background:var(--brand); color:var(--brand-ink);}
+#wizard .btn.primary{
+  background:var(--brand); border-color:var(--brand); color:var(--brand-ink);
+}
+#wizard .btn.primary:hover{opacity:.9; border-color:var(--brand);}
+#wizard .link{
+  background:none; border:none; color:var(--ink-soft); font:inherit;
+  font-size:13.5px; cursor:pointer; text-decoration:underline;
+  text-underline-offset:3px; padding:0;
+}
+#wizard .link:hover{color:var(--brand);}
+
+/* ---- the answers screen ------------------------------------------------- */
+.wz-rev{
+  display:flex; justify-content:space-between; align-items:flex-start; gap:14px;
+  padding:11px 0; border-bottom:1px solid var(--line);
+}
+.wz-rev:last-of-type{border-bottom:none;}
+.wz-rev .lbl{font-size:var(--t-body); color:var(--ink-soft); margin-bottom:2px;}
+.wz-rev .val{font-weight:550;}
+.wz-rev button,.wz-revmore a,.wz-again{
+  background:none; border:none; color:var(--brand); cursor:pointer; font:inherit;
+  font-size:13.5px; text-decoration:underline; text-underline-offset:3px;
+  padding:0; white-space:nowrap;
+}
+.wz-revmore{margin:16px 0 0; font-size:var(--t-body);}
+.wz-revmore a{color:var(--ink-soft);}
+
+/* START OVER, AND WHY IT IS HERE. The questionnaire's own intro promises both
+   routes, "change a single answer, or retake the whole thing", and the second
+   one had nowhere to live once RETAKE THE QUESTIONNAIRE started opening this
+   screen rather than restarting. Javier put it top right of the answers, in the
+   Change style, 26 Oct. Same treatment as a Change link because it is the same
+   kind of act, one row up. */
+.wz-revhead{display:flex; justify-content:space-between; align-items:baseline; gap:16px;}
+.wz-revhead .wz-lede{margin:0;}
+
+/* ---- the plan view, which is the last layer before the simulator --------- */
+/* It is the wizard's own plan page, unchanged, with a footer that depends on
+   how you arrived. One button out of the questionnaire; two when reopened from
+   the simulator by YOUR COMP PLAN. Not flattened into one state: that was
+   proposed twice and rejected twice. */
+.wz-planwrap{
+  position:fixed; inset:var(--dev-h,0px) 0 0 0; overflow-y:auto; background:var(--paper);
+  padding:26px 20px; z-index:8;
+}
+.wz-planinner{max-width:780px; margin:0 auto; position:relative;}
+.wz-planfoot{margin-top:14px;}
+/* See planFoot() in wizard.js for why the end of a long document centres its
+   action instead of pushing it to the right edge of an otherwise empty card. */
+.wz-planfoot .wz-nav{justify-content:center; gap:12px;}
+
+/* ---- the way out of a screen you only opened to look at ------------------
+   Top right of the modal and top right of the plan view, in the same place on
+   both so it is the same control rather than two. It is quiet: the colour of
+   soft ink, no border, no box, and it only darkens on hover. A close that
+   competes with the forward action is a screen asking to be abandoned.
+   On the answers screen it sits above "Retake the whole questionnaire", which
+   is why the heading row carries padding on that side. */
+.wz-x{
+  position:absolute; top:12px; right:14px; z-index:2;
+  background:none; border:none; padding:0; cursor:pointer;
+  width:30px; height:30px; border-radius:var(--r-md); line-height:1;
+  font:inherit; font-size:26px; color:var(--ink-faint);
+}
+.wz-x:hover{color:var(--ink); background:var(--brand-soft);}
+.wz-modal .wz-x{top:14px; right:14px;}
+/* THE PLAN'S CLOSE SITS IN THE CARD, in the same corner as the modal's.
+   I first pinned it to the screen, reasoning that the plan is a long scroll and
+   a close that leaves with the first screenful cannot be used at the moment you
+   decide you have seen enough. Javier marked where it should go: inside the
+   card, where it is on the answers screen. He is right that one control in one
+   place beats a cleverer control in two, and scrolling back up to leave a
+   document you have just read to the end of is not a hardship. 26 Oct. */
+.wz-planwrap .wz-x{top:14px; right:16px;}
+/* The dashes and the START OVER link both run to the right edge, so they give
+   the close its corner rather than sitting under it. */
+.wz-modal .wz-x + .wz-steps{padding-right:34px;}
+.wz-revhead{padding-right:4px;}
+
+/* ===========================================================================
+   THE PLAN BODY. Ported 26 October, which is a day later than it should have
+   been.
+
+   What went wrong: `planHTML` and `onePagerHTML` emit thirty-one class names of
+   their own, and the first pass at this file ported the QUESTIONNAIRE's chrome
+   and nothing else. So the plan view, and the blurred preview behind every
+   question, rendered as a stack of unstyled text. Worse than unstyled: `card`,
+   `note`, `kpi`, `v`, `num`, `flag` and `scroll` all collide with console class
+   names, so mock.css was dressing the plan's insides in console furniture.
+
+   Every rule below is therefore scoped under #wizard, which both gives these
+   their styling back and out-specifies the console's plain-class rules.
+
+   Same token mapping as the questionnaire chrome above, and nothing else
+   changed:  --panel -> --surface,  --bg -> --surface-sunk (a panel inside a
+   panel, which is what these are),  --muted -> --ink-soft,  --accent -> --brand,
+   --accent-soft -> --brand-soft, radii -> --r-md / --r-lg.
+   =========================================================================== */
+
+/* ---- the plan's own cards and headings ---------------------------------- */
+#wizard .card{
+  background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--r-lg); padding:26px; margin:0 0 14px;
+}
+#wizard .card:last-of-type{margin-bottom:0;}
+#wizard h4{font-size:var(--t-body); margin:18px 0 8px; font-weight:650; letter-spacing:-.01em;}
+#wizard .lede{color:var(--ink-soft);}
+#wizard .note{font-size:var(--t-body); color:var(--ink-soft); margin-top:8px;}
+
+/* ---- the headline figures ----------------------------------------------- */
+#wizard .kpi{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:10px; margin:0 0 8px;
+}
+/* `> div`, not `div`. The label and the figure are both divs inside the tile,
+   so the plain descendant selector the wizard used painted a second bordered
+   box around the figure itself. It was invisible there only because the tile
+   background and the page were the same colour; on the mock-up's white it is a
+   box inside a box. Found in the first render after the port. */
+#wizard .kpi > div{
+  background:var(--surface-sunk); border:1px solid var(--line);
+  border-radius:var(--r-lg); padding:13px 14px; display:flex; flex-direction:column;
+}
+#wizard .kpi .k{
+  font-size:11.5px; color:var(--ink-soft); text-transform:uppercase;
+  letter-spacing:.05em; font-weight:650; margin-bottom:6px; line-height:1.35;
+}
+#wizard .kpi .v{
+  font-size:20px; font-weight:650; letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums; margin-top:auto;
+}
+
+/* ---- the tables --------------------------------------------------------- */
+#wizard table{width:100%; border-collapse:collapse; font-size:14px; margin:0 0 6px;}
+#wizard th,#wizard td{
+  text-align:left; padding:9px 10px; border-bottom:1px solid var(--line);
+  vertical-align:top;
+}
+#wizard th{
+  font-size:var(--t-small); text-transform:uppercase; letter-spacing:.05em;
+  color:var(--ink-soft); font-weight:650;
+}
+#wizard td.num,#wizard th.num{text-align:right; font-variant-numeric:tabular-nums;}
+/* max-height AND overflow, not just overflow-x. base.css caps .scroll at 252px
+   for the console's deal list, and the plan uses the same class name for tables
+   that are meant to run their full length: the SDR numbers table was being
+   sliced mid-row with the next heading sitting on top of it. A long table here
+   scrolls the page, not a box inside the page. */
+#wizard .scroll{max-height:none; overflow:visible; overflow-x:auto;}
+
+/* ---- the findings, which carry the console's tones and none of their own -- */
+#wizard .flag{
+  border-radius:var(--r-lg); padding:12px 15px; margin:0 0 9px;
+  font-size:14px; border:1px solid transparent;
+}
+#wizard .flag.warn{background:var(--warn-soft); border-color:var(--warn);}
+#wizard .flag.bad{background:var(--bad-soft);  border-color:var(--bad);}
+#wizard .flag.ok{background:var(--good-soft);  border-color:var(--good);}
+#wizard .flag b{display:block; margin-bottom:3px;}
+#wizard .flag .slow{display:block; margin-top:6px; font-size:12.5px; color:var(--ink-soft);}
+#wizard .flag .fix{
+  display:block; margin-top:8px; font-size:12.5px; font-weight:650;
+  color:inherit; text-underline-offset:3px;
+}
+#wizard .honesty{
+  margin-top:16px; padding-top:14px; border-top:1px solid var(--line);
+  font-size:var(--t-body); color:var(--ink-soft); line-height:1.6;
+}
+#wizard .badge{
+  display:inline-block; font-size:11px; font-weight:700; border-radius:9px;
+  padding:1px 7px; background:var(--warn-soft); color:var(--warn);
+  border:1px solid var(--warn);
+}
+#wizard .badge.bad{background:var(--bad-soft); color:var(--bad); border-color:var(--bad);}
+
+/* ---- the little blue question marks beside a table row ------------------ */
+#wizard .q{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:16px; height:16px; border-radius:50%; background:var(--brand);
+  color:var(--brand-ink); font-size:11px; font-weight:700; cursor:pointer;
+  border:none; padding:0; line-height:1;
+  /* mock.css styles a .q of its own, 13px with a left margin, for the lever
+     labels. Three of its properties are ones this rule does not set, so they
+     came through. Stated here rather than left to chance. */
+  margin-left:0; vertical-align:middle; flex:none;
+}
+#wizard .q:hover{opacity:.85;}
+#wizard td.qcell{width:34px; text-align:right;}
+#wizard tr.tiprow>td{padding:0 10px 12px; border-bottom:1px solid var(--line);}
+#wizard .tipbox{
+  background:var(--brand-soft); border-radius:var(--r-md); padding:11px 13px;
+  font-size:13.5px; color:var(--ink-soft); line-height:1.5;
+}
+
+/* ---- the per-role sections, which open and close ------------------------ */
+#wizard details.role{
+  border:1px solid var(--line); border-radius:var(--r-lg);
+  margin:0 0 10px; background:var(--surface-sunk);
+}
+#wizard details.role>summary{
+  cursor:pointer; padding:13px 16px; font-weight:600; list-style:none;
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+#wizard details.role>summary::-webkit-details-marker{display:none;}
+#wizard details.role>summary::after{
+  content:"Show"; margin-left:auto; font-size:12.5px; font-weight:600;
+  color:var(--brand); text-transform:uppercase; letter-spacing:.05em; white-space:nowrap;
+}
+#wizard details.role[open]>summary::after{content:"Hide";}
+#wizard details.role>summary::before{
+  content:"\25B8"; color:var(--brand); font-size:15px; transition:.15s;
+  display:inline-block; width:14px;
+}
+#wizard details.role[open]>summary::before{transform:rotate(90deg);}
+#wizard details.role>summary:hover{background:var(--brand-soft); border-radius:var(--r-lg); color:var(--brand);}
+#wizard .rolebody{padding:0 16px 16px; border-top:1px solid var(--line); margin-top:-1px;}
+#wizard .rolebody>h4:first-of-type{margin-top:14px;}
+#wizard .rolebody .lede{margin-top:14px;}
+
+/* ---- the one-pager, which is not a screen ------------------------------- */
+/* It ships inside the plan view because PRINT AS PDF has to have something to
+   print, and it is the only thing that prints. On screen it is not there at
+   all, which is how the wizard always had it. Before this rule existed it
+   rendered as a second unstyled copy of the plan underneath the first, which is
+   the interleaving in Javier's third screenshot. */
+#wizard #onepager{display:none;}
+
+@media print{
+  /* Must agree with comp-plan-wizard-v3.html's @page and with the engine's
+     OP_BOX, which is the box the one-pager is fitted to at print time. The
+     bottom margin holds a 21px footer and was reserving 91px for it; 0.6in
+     hands 33px back. See the note at OP_BOX for why eight pixels of slack was
+     not enough. */
+  @page{size:letter; margin:0.5in 0.55in 0.6in;}
+  /* The console sets overflow:hidden and a viewport height on html and body,
+     which prints as one clipped page. */
+  html,body{overflow:visible !important; height:auto !important; background:#fff; color:#111;}
+  .review,#frame,.phone,.layer,#tip,[id^="tour-"]{display:none !important;}
+  /* .wz-x printed in the top corner of the one-pager, and it was `position:
+     fixed`, which Chrome repeats on every page of a print. That is the most
+     likely source of the blank second page in Javier's TestPDF: nothing else in
+     the document reaches past the first page, and every preset prints on one
+     page here with and without the browser's own headers. A control that does
+     something on a screen is furniture on paper either way. */
+  .wz-blurwrap,.wz-scrim,.wz-planfoot,.wz-x{display:none !important;}
+  .wz-planwrap{
+    position:static !important; inset:auto !important;
+    padding:0 !important; overflow:visible !important; background:#fff !important;
+  }
+  .wz-planinner{max-width:none !important;}
+  /* The on-screen plan is what you were reading; the one-pager is what you
+     asked for. */
+  #wizard .wz-planinner>.card{display:none !important;}
+  /* THE 22pt IS THE GAP ABOVE THE FOOTER, not decoration. I took it out while
+     hunting the blank page, on the theory that it was the only thing in the
+     document past the last line and therefore the only thing that could spill.
+     Measured, that was wrong twice over: the blank page survived without it,
+     and #early fits at 904px against a 917px box, so with no padding its last
+     line lands on top of the fixed footer. Put back. */
+  #wizard #onepager{display:block !important; padding-bottom:22pt;}
+  *{-webkit-print-color-adjust:exact; print-color-adjust:exact;}
+  #wizard #onepager h1{font-size:20pt; margin:0 0 4pt; letter-spacing:-.02em;}
+  #wizard #onepager h2{
+    font-size:9pt; text-transform:uppercase; letter-spacing:.09em; color:#555;
+    margin:10pt 0 5pt; font-weight:700; border-bottom:.6pt solid #bbb; padding-bottom:3pt;
+  }
+  #wizard .op-sub{font-size:9.5pt; color:#444; margin:0 0 8pt; line-height:1.4;}
+  #wizard .op-kpi{display:flex; gap:6pt; margin:0 0 4pt;}
+  #wizard .op-kpi > div{
+    flex:1; border:.6pt solid #bbb; border-radius:3pt; padding:6pt 7pt;
+    display:flex; flex-direction:column; background:none;
+  }
+  #wizard .op-kpi span{
+    display:block; font-size:6.8pt; text-transform:uppercase; letter-spacing:.05em;
+    color:#666; font-weight:700; margin-bottom:3pt; line-height:1.25;
+  }
+  #wizard .op-kpi b{font-size:14pt; letter-spacing:-.02em; margin-top:auto;}
+  #wizard .op-verdict{font-size:9.5pt; font-weight:600; margin:0 0 6pt;}
+  #wizard .op-flag{
+    font-size:8.6pt; line-height:1.4; padding:4.5pt 7pt; margin:0 0 3pt;
+    border-radius:3pt; border:.6pt solid #bbb; border-left-width:2.5pt;
+  }
+  #wizard .op-flag.bad{background:#fdeceb; border-color:#b3261e;}
+  #wizard .op-flag.warn{background:#fdf3e4; border-color:#a8620a;}
+  #wizard .op-flag.ok{background:#e8f4ee; border-color:#1a6b47; padding:3.5pt 7pt;}
+  #wizard .op-badge{
+    display:inline-block; font-size:6.5pt; font-weight:800; letter-spacing:.08em;
+    padding:1pt 4pt; border-radius:2pt; margin-right:5pt; vertical-align:1pt;
+    background:#fff; border:.6pt solid #666; color:#333;
+  }
+  #wizard .op-badge.bad{border-color:#b3261e; color:#b3261e;}
+  #wizard .op-badge.warn{border-color:#a8620a; color:#a8620a;}
+  #wizard .op-badge.ok{border-color:#1a6b47; color:#1a6b47;}
+  #wizard .op-more{font-size:7.8pt; color:#555; margin:0 0 5pt; font-style:italic;}
+  #wizard .op-tbl{width:100%; border-collapse:collapse; font-size:8.6pt;}
+  #wizard .op-tbl th{
+    font-size:6.8pt; text-transform:uppercase; letter-spacing:.05em; color:#666;
+    text-align:left; padding:0 6pt 3pt 0; font-weight:700; border-bottom:.6pt solid #bbb;
+  }
+  #wizard td.op-r{
+    padding:3.4pt 6pt 3.4pt 0; border-bottom:.4pt solid #ddd;
+    vertical-align:top; line-height:1.35;
+  }
+  /* The cost table runs two label-and-number pairs per row. op-gut is the
+     gutter between the halves, and the halves are held to a quarter of the
+     width each so the two number columns line up down the page rather than
+     drifting with the longest label in their own half. A trailing cell on a
+     short side carries no rule, because a border under an empty cell reads as a
+     row whose value went missing. */
+  #wizard table.op-cost{table-layout:fixed;}
+  #wizard table.op-cost td.op-r{width:26%;}
+  #wizard table.op-cost td.op-n{width:12%;}
+  #wizard td.op-gut{padding-left:16pt;}
+  #wizard table.op-cost td:empty{border-bottom:none;}
+  /* The role table's three narrow columns, held to widths that hold their
+     content rather than letting auto layout decide. */
+  #wizard table.op-roles{table-layout:fixed;}
+  #wizard table.op-roles th:nth-child(1),#wizard table.op-roles td:nth-child(1){width:140px;}
+  #wizard table.op-roles th:nth-child(2),#wizard table.op-roles td:nth-child(2){width:72px;}
+  #wizard table.op-roles th:nth-child(3),#wizard table.op-roles td:nth-child(3){width:66px;}
+  /* fitOnePage() hides cards with the hidden attribute, which a display rule on
+     the class would otherwise override. */
+  #wizard #onepager [hidden]{display:none !important;}
+  /* Two passed checks per row. The 3pt gap matches the bottom margin the
+     stacked cards already carried, so the grid looks like the same card set
+     rearranged rather than a new component. */
+  #wizard .op-ok-grid{display:flex; flex-wrap:wrap; gap:3pt; margin:0 0 5pt;}
+  #wizard .op-ok-grid .op-flag{flex:0 0 calc(50% - 1.5pt); margin:0;}
+  #wizard td.op-n{text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums;}
+  #wizard .op-note{font-size:7.6pt; color:#666; margin:5pt 0 0; line-height:1.35;}
+  #wizard .op-honesty{
+    font-size:7.6pt; color:#666; margin:7pt 0 0; line-height:1.35;
+    padding-top:5pt; border-top:.5pt solid #ddd;
+  }
+  #wizard .op-foot{
+    position:fixed; bottom:0; left:0; right:0; display:flex;
+    justify-content:space-between; font-size:7.4pt; color:#555;
+    border-top:.6pt solid #bbb; padding-top:4pt;
+  }
+  #wizard .op-foot a{color:#555; text-decoration:none;}
+}

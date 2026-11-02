@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- WITHOUT THIS A PHONE LAYS THE PAGE OUT AT 980px, so `max-width:820px`
+     never matches and the phone page never appears: the console renders
+     shrunk to death instead. Setting a Playwright viewport bypasses the
+     meta entirely, which is why every width I measured passed and the
+     real device did not. Javier found it with DevTools. 19 Oct. -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comp Plan Simulator</title>
+<link rel="stylesheet" href="base.css?v=3">
+<link rel="stylesheet" href="mock.css?v=106">
+<link rel="stylesheet" href="wizard.css?v=5">
+</head>
+<body>
+
+<!-- THE QUESTIONNAIRE LAYER. Everything before the simulator lives in here:
+     the intro, the twenty questions, the answers screen and the plan view,
+     each floating over a blurred preview of the next layer. It covers the
+     console until "Jump to the simulator", which is why the frame's top bar
+     and file rail are not visible during any of it: three of those four
+     buttons and the whole rail would be pointing at things that do not exist
+     yet. Javier, 26 Oct. -->
+<div id="wizard"></div>
+
+<!-- ---- the phone page -------------------------------------------------
+     Below about 820px the console is not shown at all. A 60-row ledger does
+     not work at 390px, and a blurred console under an apology is the worst of
+     both: it looks broken AND teases something that cannot be opened. So the
+     phone gets the elevator pitch, which is what somebody skimming after
+     LinkedIn wants anyway. Javier's constraint, 11 Oct: "a hiring manager
+     checking LinkedIn on their phone will forget about me."
+
+     THE ORDER IS JAVIER'S, 19 Oct, and it is better than my first pass. The
+     laptop line goes first, because at the top it answers "why am I looking
+     at pictures" before the reader thinks to ask, and at the bottom it is an
+     apology. The screenshots then follow the journey rather than sitting as
+     three disconnected screens: what you answer, what it builds, the quarter
+     it runs. And the prose is the build page's opening CUT rather than
+     rewritten, so it stays in his voice: the first line, the three rules, the
+     two-jobs argument, and a last line telling them what to do.
+
+     Its own heading is dropped. "How did I build this?" answers a question the
+     reader has just clicked on the console; here they arrive cold. -->
+<div class="phone">
+  <header>
+    <h1>Comp Plan Simulator</h1>
+    <p class="by">Javier J. Hernandez</p>
+  </header>
+
+  <p class="laptop">This is a console built for a wide screen, so it does not open on a
+  phone. Below is what it looks like and what it does. Open it on a laptop to use it.</p>
+
+  <figure>
+    <img src="ph-wizard.jpg" alt="The simulator's opening screen, headed Let's build your
+      compensation plan." width="900" height="830">
+    <figcaption>Twenty questions. This is the first screen.</figcaption>
+  </figure>
+  <figure>
+    <img src="ph-plan.jpg" alt="The compensation plan the questions build, with the findings
+      raised against it." width="900" height="924">
+    <figcaption>What the simulator noticed about the plan you build.</figcaption>
+  </figure>
+  <figure>
+    <img src="ph-revops.jpg" alt="The simulator's RevOps view, a full quarter running against
+      the plan." width="900" height="492">
+    <figcaption>A full quarter running against that plan, seen from RevOps.</figcaption>
+  </figure>
+
+  <p>Every company that sells something runs a compensation plan, and very few of them can
+  tell you why theirs is built the way it is.</p>
+
+  <p>A comp plan has to follow three rules. <b>Motivation</b>, a line a rep can see between
+  the work they do today and the money that turns up later. <b>Simplicity</b>, which means
+  anybody paid by it can work out their own cheque without help. <b>Company goals</b>, which
+  means it pays for the thing the company says it actually wants. Most comp plans break at
+  least one of them, and usually nobody finds out until the quarter is over.</p>
+
+  <p>So I built something that cannot produce a comp plan without also producing the argument
+  for it. There is a conversation happening in revenue operations about two jobs pulling
+  apart, the person who knows what the business needs and the person who can build the system
+  that serves it. Building a comp plan is where that gap shows up most clearly, which is
+  exactly why I picked it.</p>
+
+  <p>Open it on a laptop, take the questionnaire and watch the simulator build your own comp
+  plan.</p>
+
+  <nav class="links">
+    <a href="https://www.linkedin.com/in/javierjotah">LinkedIn</a>
+    <a href="Javier_J_Hernandez_Resume_2026.pdf" download>Download my resume</a>
+  </nav>
+</div>
+
+<div class="frame" id="frame">
+
+
+  <div class="topbar">
+    <div class="gap"></div>
+    <!-- Centred on the BAR, not flexed between its neighbours: two flex gaps
+         split the free space evenly, which put this pair 151px left of the
+         outer box's centre. Javier, 11 Oct. -->
+    <div class="mid">
+      <div class="navbtn" id="nav-retake">Retake the questionnaire</div>
+      <div class="navbtn" id="nav-plan">Your comp plan</div>
+    </div>
+    <div class="gap"></div>
+    <div class="navbtn" id="nav-tour">Take the tour</div>
+    <div class="navbtn ghost" id="nav-build">How did I build this?</div>
+  </div>
+
+  <div class="body">
+
+    <div class="view" id="view">
+      <!-- THE WHAT-IF LINE. Inside the view, not in the chrome, because it
+           describes what this screen is showing rather than the tool around
+           it. Spec, 23 Sep. It renders on EVERY persona, and on a rep's view
+           it is the only signal there is, since the plan levers are not shown
+           to anybody who cannot change a plan. -->
+      <div id="whatif" hidden></div>
+      <!-- THE SIMULATOR LINE, under the what-if line by Javier's call of 22 Oct:
+           the what-if is about what the reader just did, this is about what the
+           plan always was. One line, one link, every persona, never stacked. It
+           fires on red capacity only, which is 19% of plans and, of the presets,
+           only #mixed. See the block comment on paintSimLine in app.js. -->
+      <div id="simline" hidden></div>
+      <!-- The week lever moves INTO this row on any view that has no plan
+           levers, so a rep's screen spends no vertical band on one control and
+           the tiles rise to sit level with the filters. -->
+      <div class="headrow">
+        <p class="viewtag" id="viewtag">RevOps (admin)</p>
+        <div id="headlever"></div>
+      </div>
+
+      <div class="cols">
+        <div class="left">
+          <div class="box" id="personas">
+            <!-- The "?" moved OUT of the heading. It was spec'd beside this picker
+                 and has never rendered on any view, because the heading it was
+                 attached to is display:none: the dropdowns label themselves, so
+                 the heading went and took the marker with it. Javier, 14 Oct. -->
+            <h4>Who are you looking as</h4>
+            <div class="picker">
+              <select id="roleSel"></select>
+              <select id="whoSel"></select>
+              <span class="q" data-q="who">?</span>
+            </div>
+          </div>
+          <div class="box" id="deals">
+            <!-- The title is its own span: render() sets it with textContent,
+                 which wipes every child of the node it is set on, and the
+                 select was a child of the h4. -->
+            <h4><span id="dealttl">The quarter's deals</span>
+              <select id="typeSel"></select></h4>
+            <div id="xnote"></div>
+            <div class="scroll"><table id="dealtab"></table></div>
+          </div>
+        </div>
+
+        <div class="main">
+          <!-- The levers live in the RIGHT column, not in a band across the
+               whole pane. As a band they pushed the left column down, so the
+               filter and the deal table never lined up with the figures, and
+               they left a hole beside the view name. -->
+          <div class="levers" id="levers">
+        <div class="lever planlever" id="lever-quota"><div class="lab">Quota<span class="q" data-q="lever-quota">?</span></div>
+          <div class="track"><i style="width:50%"></i><u style="left:50%"></u></div><div class="val">$150K each</div></div>
+        <div class="lever planlever" id="lever-reps"><div class="lab">Reps at quota<span class="q" data-q="lever-reps">?</span></div>
+          <div class="track"><i style="width:60%"></i><u style="left:60%"></u></div><div class="val">60%</div></div>
+        <div class="lever planlever" id="lever-ret"><div class="lab">Retention<span class="q" data-q="lever-ret">?</span></div>
+          <div class="track"><i style="width:45%"></i><u style="left:45%"></u></div><div class="val">88% / 95%</div></div>
+        <div class="lever planlever" id="lever-ceil"><div class="lab">Cost ceiling<span class="q" data-q="lever-ceil">?</span></div>
+          <div class="track"><i style="width:40%"></i><u style="left:40%"></u></div><div class="val">20%</div></div>
+        <div class="lever-sep planlever"></div>
+        <div class="lever" id="lever-week"><div class="lab">Week<span class="q" data-q="lever-week">?</span></div>
+          <div class="track"><i style="width:35%"></i><u style="left:35%"></u></div><div class="val" id="weekval">Week 6</div></div>
+      </div>
+          <div class="tiles" id="tiles"></div>
+          <div class="box" id="orgbox">
+            <h4 id="orgttl">The whole organization</h4>
+            <div class="scroll"><table class="tree" id="tree"></table></div>
+          </div>
+          <div id="findings"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rail" id="rail">
+      <div class="railttl">Your files</div>
+      <div class="file doc" id="f-contract">
+        <svg width="32" height="39" viewBox="0 0 38 46"><path d="M2 4a3 3 0 0 1 3-3h19l12 12v29a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3Z" fill="#2b579a"/><path d="M24 1l12 12H27a3 3 0 0 1-3-3Z" fill="#5c83bd"/><g fill="#fff"><rect x="9" y="22" width="20" height="2.4" rx="1.2"/><rect x="9" y="28" width="20" height="2.4" rx="1.2"/><rect x="9" y="34" width="13" height="2.4" rx="1.2"/></g></svg>
+        Compensation Agreement</div>
+      <div class="file doc" id="f-deck">
+        <svg width="32" height="39" viewBox="0 0 38 46"><path d="M2 4a3 3 0 0 1 3-3h19l12 12v29a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3Z" fill="#c43e1c"/><path d="M24 1l12 12H27a3 3 0 0 1-3-3Z" fill="#dd7556"/><rect x="8.5" y="21" width="21" height="14" rx="2" fill="#fff"/><rect x="11.5" y="24" width="15" height="2" rx="1" fill="#c43e1c"/><rect x="11.5" y="28" width="9" height="4" rx="1" fill="#c43e1c" opacity=".55"/></svg>
+        Launch Deck</div>
+      <div class="file doc" id="f-capacity">
+        <svg width="32" height="39" viewBox="0 0 38 46"><path d="M2 4a3 3 0 0 1 3-3h19l12 12v29a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3Z" fill="#1d6f42"/><path d="M24 1l12 12H27a3 3 0 0 1-3-3Z" fill="#43966b"/><g fill="#fff"><rect x="9" y="22" width="20" height="2.4" rx="1"/><rect x="9" y="28" width="20" height="2.4" rx="1"/><rect x="9" y="34" width="20" height="2.4" rx="1"/><rect x="15.5" y="21" width="2.4" height="16" rx="1"/><rect x="22" y="21" width="2.4" height="16" rx="1"/></g></svg>
+        Capacity Model</div>
+      <div class="file doc" id="f-tracker">
+        <svg width="32" height="39" viewBox="0 0 38 46"><path d="M2 4a3 3 0 0 1 3-3h19l12 12v29a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3Z" fill="#1d6f42"/><path d="M24 1l12 12H27a3 3 0 0 1-3-3Z" fill="#43966b"/><g fill="#fff"><rect x="9" y="22" width="20" height="2.4" rx="1"/><rect x="9" y="28" width="20" height="2.4" rx="1"/><rect x="9" y="34" width="20" height="2.4" rx="1"/><rect x="15.5" y="21" width="2.4" height="16" rx="1"/><rect x="22" y="21" width="2.4" height="16" rx="1"/></g></svg>
+        Finance Tracker</div>
+      <div class="railgap"></div>
+      <div class="file" id="f-resume">
+        <svg width="32" height="39" viewBox="0 0 38 46"><path d="M2 4a3 3 0 0 1 3-3h19l12 12v29a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3Z" fill="#9b2423"/><path d="M24 1l12 12H27a3 3 0 0 1-3-3Z" fill="#c4615f"/><text x="19" y="34" text-anchor="middle" fill="#fff" font-family="Arial" font-size="10.5" font-weight="700">PDF</text></svg>
+        My Resume</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- =====================================================================
+     HOW DID I BUILD THIS. A layer over the blurred simulator.
+
+     SHAPE, 10 Oct: the card never exceeds the viewport. The opening and the
+     six section headers share one scroll area, an open section's body scrolls
+     inside its own frame at about two paragraphs, and the closing line is
+     pinned so it is always reachable. Opening a section closes the others.
+
+     THE COPY IS JAVIER'S OWN REWRITE, 10 Oct, every section at or under 255
+     words. Titles carry the plain noun in brackets on the four middle
+     sections, which are about the thing; the first and last are about him and
+     about the craft, so they do not.
+     ===================================================================== -->
+<div class="layer" id="buildlayer" hidden>
+  <div class="sheet" role="dialog" aria-label="How did I build this">
+    <button class="sheetx" id="buildx" title="Close">&times;</button>
+    <h2>How did I build this?</h2>
+
+    <div class="sheetscroll">
+      <div class="lede">
+        <p>Every SaaS company runs a compensation plan, and very few know why theirs is
+        built the way it is. It lives in a spreadsheet somebody inherited or inside a
+        platform that costs more than the team it pays, and either way, ask why the
+        accelerator starts where it starts and you get a shrug.</p>
+
+        <p>A comp plan has to follow three rules. <b>Motivation</b>, a line a rep can see
+        between their work and the money they receive later. <b>Simplicity</b>, which means
+        anybody paid by it can work out their own cheque without help. <b>Company goals</b>,
+        which means it pays for the thing the company says it actually wants.
+        Most comp plans break at least one of them, some break all three, and usually
+        nobody finds out until the quarter is over.</p>
+
+        <p>So I built something that cannot produce a comp plan without also producing the
+        argument for it, and then runs a quarter against it so you can see who it pays and
+        who it punishes before it becomes somebody&rsquo;s income. The thinking went into a
+        knowledge base I built with Claude, assembled from the research up and argued out
+        before a line of it was coded. Claude Code built the application from it. n8n
+        produces the documents.</p>
+
+        <p>There is also a conversation happening in revenue operations about two jobs
+        pulling apart, the person who knows what the business needs and the person who can
+        build the system that serves it. Building a comp plan is where that gap shows up
+        most clearly, which is exactly why I picked this project.</p>
+      </div>
+
+      <div class="secs">
+      <details><summary>Where this came from</summary><div class="sbody">
+        <p>I have spent seven years in revenue operations and twelve across the go-to-market
+        lifecycle. The pattern repeats: a comp plan gets built to fix last year&rsquo;s
+        problem, ships without being stress-tested, and the damage turns up two quarters
+        later in attrition or in margin.</p>
+        <p>What was missing was something that would take what you asked for, build it, and
+        then show you where what you asked for doesn&rsquo;t match what you need.</p>
+        <p>RevOps is changing, and not slowly. It used to have two roles: the CRM admin who
+        built the systems, and the manager who decided what the business needed. That worked
+        while the building was plumbing. Now, GTM Engineers are a real role and they are
+        everywhere, and what gets built has moved a long way past plumbing. So the job is
+        becoming one person instead of two, and that makes which side you start from matter.
+        Building can be learned. The judgement is harder to pick up on the way.</p>
+        <p>A comp plan is the clearest test of that. It is the hardest thing in revenue
+        operations to fake: the manager designed it, somebody else wired it up. Getting it
+        right means knowing how pay changes behaviour, what a sales cycle does to a quota,
+        and where a plan quietly stops matching what the company says it wants. I came from
+        the design half. Here I did both. Take it for a spin.</p>
+      </div></details>
+
+      <details><summary>Writing it down first <span>(the knowledge base)</span></summary><div class="sbody">
+        <p>First I read, then I wrote. Eleven sources on how SaaS companies actually pay:
+        what a starting commission rate looks like, how big a quota should be next to the
+        pay it earns, when a draw is a kindness and when it is a trap, where an accelerator
+        should start. That reading is the floor under every default in here.</p>
+        <p>All of it went into a knowledge base before any of it was built, and that was the
+        point. I wanted Claude working from material I had read and vetted, so that what
+        came out came from there and not from whatever it half-remembered. A model with
+        nothing in front of it fills the gap confidently and wrongly.</p>
+        <p>It is also where the three comp plan rules (<b>Motivation</b>, <b>Simplicity</b>,
+        <b>Company goals</b>) stopped being a slogan. Every rule had to produce a
+        verdict: green when the plan holds to it, red when it does not. That is 52 verdicts
+        on the plan you design and <span id="qfcount">164</span> on the quarter it runs,
+        each with the exact condition that fires it. A rule the tool could not decide did
+        not belong in the tool.</p>
+        <p>No code until the decision was written down and somebody could argue with it. Two
+        things came out of that. Somebody who has never seen the code could rebuild this
+        from the documentation. And when I changed my mind, I could see straight away what
+        else had to change with it, instead of finding out later.</p>
+      </div></details>
+
+      <details><summary>How it actually works <span>(the engine)</span></summary><div class="sbody">
+        <p>Twenty answers go in. What comes out is a plan for every role on the team, the
+        quota and the rate behind each one, what the whole thing costs as a share of
+        revenue, and then a full quarter running against it, with every person earning or
+        missing their number week by week.</p>
+        <p>The first half is a plan, and a plan can be read. The second half is what a plan
+        does, and that can only be watched. On paper you can tell whether it is coherent:
+        the rate funds itself, the mix adds up, the cost lands inside the guardrail. You
+        cannot tell who it punishes. A quota that needs nine deals in a nine-week cycle
+        reads fine in a spreadsheet and stops being arguable the moment you watch most of
+        the team finish at 60%.</p>
+        <p>So the plan is judged twice. Once as a design, and once as money landing on
+        specific people. The two catch different things, and the second one is the one
+        nobody does before launch.</p>
+        <p>None of that depends on the data being invented. What the engine works from is
+        deal size, cycle length, win rate, quota and attainment, which is what sits in any
+        CRM. Nothing here is tied to a simulated quarter. A simulated quarter is just the
+        only one I have.</p>
+      </div></details>
+
+      <details><summary>Not just a plan <span>(the documents)</span></summary><div class="sbody">
+        <p>A comp plan is not finished when the numbers work. It is finished when it is
+        something you can sign, present and model.</p>
+        <p>Five documents come out of this plan. The <b>one-pager</b> is the plan and the
+        argument for it on a page, the thing you send before the meeting. The <b>launch
+        deck</b> is the roll-out, built to present to the people the plan pays. The
+        <b>compensation agreement</b> is the signable version, with the targets, rates and
+        clawback terms written in. The <b>capacity model</b> is the plan as a finance
+        workbook with live formulas, so it can go further than the simulator does: your own
+        discount bands, commission tied to gross margin, the payout run against next
+        year&rsquo;s headcount. The <b>finance tracker</b> is the quarter as a
+        spreadsheet, because plenty of finance teams still accrue commission in a sheet and
+        would rather have their own.</p>
+        <p><b>The deck explains the plan, it does not judge it.</b> You do not tell a sales
+        team their quota does not fit their cycle, so no findings are in it. A
+        manager&rsquo;s pay is not in it either: that belongs in their agreement, not on a
+        slide shown to their own team.</p>
+        <p><b>The plan documents ignore the what-if controls. The analysis files follow
+        them.</b> Move a lever and the capacity model and the tracker move with it. The
+        one-pager, the deck and the agreement stay on the plan as it was designed, because a
+        signed agreement should not change its terms when somebody drags a slider.</p>
+      </div></details>
+
+      <details><summary>Putting it all together <span>(the tools)</span></summary><div class="sbody">
+        <p>Three environments, and the split is deliberate. The specification was built with
+        Claude in the desktop app, and it is not a document describing an engine. It is an
+        engine: the plan logic, the five document generators, and twenty-eight checkers that
+        re-derive every printed number from its inputs across tens of thousands of randomly
+        generated plans. All of it runnable, which is what makes everything after it
+        short.</p>
+        <p>Claude Code built the shipped application from that, and none of the comp logic
+        was its to decide. The rules and the copy sit in a data file it reads, and the
+        conditions behind the findings went over as tested code, so the build was an
+        interface over decisions that were already settled, rather than someone deciding
+        what a decelerator should do while also writing the screen that displays it.</p>
+        <p>n8n produces the documents. Self-hosted rather than parked on a free tier, so it
+        still answers on a Tuesday night when nobody is watching. Webhook in, finished
+        document out, and every document it returns is checked against what the generators
+        produce directly, thirty-six of them across nine plans, because a service that
+        returns something is not the same as a service that returns the right thing. The
+        compensation agreement is built from a Word template, so changing a sentence in it
+        is a template edit and not a code change, and it does not have to be me who makes
+        it.</p>
+        <p>Prototype in one place, ship from another, with something executable in between.
+        The middle piece is the part most AI builds skip, and it is the reason the last
+        stage was the short one.</p>
+      </div></details>
+
+      <details><summary>Three calls that may not be obvious</summary><div class="sbody">
+        <p><b>The commission rate is not something you get to choose.</b> At target, variable
+        pay has to equal quota times the rate, so the rate is just variable divided by quota
+        and this tool never asks you for one. That sounds like a shortcut until you give it
+        a $200K OTE against a $350K quota, and it tells you the implied rate is 28.6% and
+        the plan cannot fund itself. Most tools take both numbers happily and never notice
+        they disagree.</p>
+        <p><b>Pay a different rate per product and you have bought a cost you cannot
+        predict.</b> Paying 1.25 on the strategic product and 0.75 on services points reps
+        at what the company wants sold, and it works, which is the problem: spend now moves
+        with a mix nobody controls, and the better it works the more it costs. The fix is to
+        quota the mix or bound the premium. Almost nobody does either, and Finance finds out
+        when commission comes in over plan.</p>
+        <p><b>A dashboard cannot show you most of what is wrong with a comp plan.</b> If
+        nobody is paid to grow an existing account, a quarter could still look flawless.
+        Team at 105%, cost inside the guardrail, everything green. The damage lands in net
+        revenue retention two years later, and nothing in this quarter will ever surface it.
+        Which is why that warning lives on the plan and not on the quarter, two years before
+        your retention number says it.</p>
+      </div></details>
+      </div>
+    </div>
+
+    <p class="close">If any of this is worth a conversation,
+      <a href="#" id="bp-resume">download my resume</a> or
+      <a href="#" id="bp-li">find me on LinkedIn</a>.</p>
+  </div>
+</div>
+</div>
+
+<!-- ---- the tutorial overlay ------------------------------------------
+     Ported from tour-harness.html, 20 Oct. Ids are prefixed `tour-` because
+     the harness used bare ones (#card, #spot, #done) that would collide with
+     the real screen. The card sits ABOVE the hovercard's z-index, not below:
+     the tour hovers a real row and the real hovercard answers, so the two are
+     on screen together and the card has to win.
+
+     #tour-block is the inert layer. The tour's own acts are dispatched
+     straight at their elements, so they are unaffected by it. -->
+<!-- The gist of HOW DID I BUILD THIS, with a line drawn up to the button it
+     belongs to. Filled from #buildlayer at run time, never written out here:
+     the preview IS the real page shrunk, so there is no second copy of that
+     text to keep in step. Javier, 20 Oct. -->
+<div id="tour-build"></div>
+<svg id="tour-arrow"><path id="tour-arrowpath" fill="none"
+  stroke="#b3261e" stroke-width="2.4" stroke-linecap="round"/>
+  <path id="tour-arrowhead" fill="#b3261e"/></svg>
+<div id="tour-spot"></div>
+<div id="tour-block"></div>
+<div id="tour-card">
+  <button class="x" id="tour-x" title="Close">&times;</button>
+  <h3 id="tour-title"></h3>
+  <p id="tour-body"></p>
+  <div class="row"><button id="tour-back">Back</button><button class="primary" id="tour-next">Next</button></div>
+</div>
+<div id="tour-confirm"><div class="c">
+  <h3 id="tour-cfttl"></h3><p id="tour-cfbody"></p>
+  <div class="row"><button id="tour-cfleave"></button><button class="primary" id="tour-cfstay"></button></div>
+</div></div>
+<div id="tour-done"></div>
+
+<script src="findings.js"></script>
+<script src="engine.global.js"></script>
+<!-- The plan comes out of commission_rules.json. Both of these are GENERATED
+     by make-rules-global.js and must not be edited: rules.global.js is the
+     JSON verbatim with a fingerprint, rules-engine.global.js is the browser
+     form of rules-engine.js. A file:// page cannot fetch a local JSON, which
+     is why these are script tags rather than a fetch. -->
+<script src="rules.global.js"></script>
+<script src="rules-engine.global.js"></script>
+<script src="cards.js?v=77"></script>
+<script src="app.js?v=139"></script>
+<!-- After app.js: the questionnaire calls window.APP on its way into the simulator. -->
+<script src="wizard.js?v=8"></script>
+<script src="tour.js?v=5"></script>
+</body>
+</html>

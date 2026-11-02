@@ -1,0 +1,189 @@
+/* VERBATIM from tour-harness.html, the screen Javier reviewed. Not edited.
+   Every change this mock-up makes lives in mock.css, so the difference between
+   the screen he knows and the screen he is looking at is one short file. */
+
+  :root{
+    --bg:#eceff3; --chrome:#f6f7f9; --panel:#fff; --ink:#14181f; --muted:#5c6674;
+    --line:#dfe4ea; --line2:#e9edf2; --accent:#1f4e79;
+    --warn:#a8620a; --warn-soft:#fdf3e4; --bad:#b3261e; --bad-soft:#fdeceb;
+    --good:#1a6b47; --good-soft:#e8f4ee;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+
+  .review{background:#20242b;color:#cbd3dd;padding:7px 14px;font-size:12.5px;
+    display:flex;gap:14px;align-items:center;flex-wrap:wrap;position:sticky;top:0;z-index:300}
+  .review b{color:#fff;font-weight:600}
+  .review select,.review button{font:inherit;background:#2c323b;color:#e8ecf2;border:1px solid #3c444f;
+    border-radius:5px;padding:3px 8px;cursor:pointer}
+  .review .spacer{flex:1}
+  .review .note{color:#8b94a1}
+
+  .frame{margin:14px;border:1px solid #c9d0d9;border-radius:10px;background:var(--chrome);
+    padding:10px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .topbar{display:flex;align-items:center;gap:8px;padding:2px 2px 10px}
+  .navbtn{background:var(--panel);border:1px solid var(--line);border-radius:7px;
+    padding:7px 14px;font-size:11.5px;letter-spacing:.06em;font-weight:600;cursor:default;
+    white-space:nowrap;text-transform:uppercase}
+  .navbtn.ghost{border-style:dashed;color:var(--muted)}
+  .topbar .gap{flex:1}
+
+  .body{display:flex;gap:10px;align-items:flex-start}
+  .view{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:8px;
+    padding:12px;min-width:0;transition:filter .5s ease}
+  /* The simulator sits behind a blur until the tour arrives at it, so the first half of the
+     tour is about the plan and the files, and the quarter comes into focus when it is its
+     turn. Chrome stays sharp: the top bar and the file rail are the tool, not the view. */
+  .view.blurred{filter:blur(5px)}
+  .viewtag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+    margin:0 0 9px}
+
+  .levers{display:flex;gap:10px;align-items:center;border:1px solid var(--line2);
+    border-radius:7px;padding:9px 11px;background:#fbfcfd;margin-bottom:11px}
+  .lever{flex:1;min-width:0}
+  .lever .lab{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .lever .track{height:5px;background:#dde3ea;border-radius:3px;margin:5px 0 3px;position:relative}
+  .lever .track i{position:absolute;left:0;top:0;bottom:0;background:var(--accent);border-radius:3px}
+  .lever .track u{position:absolute;top:-4px;width:13px;height:13px;border-radius:50%;
+    background:#fff;border:2px solid var(--accent);transform:translateX(-50%)}
+  .lever .val{font-size:11.5px;font-variant-numeric:tabular-nums}
+  .lever-sep{width:1px;align-self:stretch;background:var(--line);margin:0 2px}
+
+  .cols{display:flex;gap:10px;align-items:flex-start}
+  .left{width:258px;flex:0 0 258px}
+  .main{flex:1;min-width:0}
+
+  .box{border:1px solid var(--line2);border-radius:7px;background:var(--panel);margin-bottom:10px}
+  .box h4{margin:0;padding:8px 10px;font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);border-bottom:1px solid var(--line2);font-weight:600}
+
+  /* persona picker is a dropdown, not a list */
+  .picker{padding:9px 10px}
+  .picker .sel{border:1px solid var(--line);border-radius:6px;padding:7px 10px;font-size:13px;
+    display:flex;align-items:center;justify-content:space-between;background:#fbfcfd}
+  .picker .sel b{font-weight:600}
+  .picker .sel span{color:var(--muted);font-size:11px}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;font-weight:600;color:var(--muted);font-size:11px;letter-spacing:.04em;
+    text-transform:uppercase;padding:6px 8px;border-bottom:1px solid var(--line2)}
+  td{padding:6px 8px;border-bottom:1px solid #f1f4f7}
+  tr:last-child td{border-bottom:0}
+  .num{text-align:right;font-variant-numeric:tabular-nums}
+  .scroll{max-height:252px;overflow:auto}
+
+  .bar{height:9px;background:#e7ecf1;border-radius:2px;position:relative;min-width:72px}
+  .bar i{position:absolute;left:0;top:0;bottom:0;background:#7c9cc0;border-radius:2px}
+  .bar.good i{background:#5aa37d} .bar.bad i{background:#cf7b74}
+  .bar u{position:absolute;top:-2px;bottom:-2px;width:1px;background:#8b95a1}
+
+  .tiles{display:flex;gap:9px;margin-bottom:10px}
+  .tile{flex:1;border:1px solid var(--line2);border-radius:7px;padding:9px 10px;background:#fbfcfd}
+  .tile .k{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  .tile .v{font-size:19px;font-weight:600;margin:3px 0 5px;font-variant-numeric:tabular-nums}
+  .tile .meter{height:6px;background:#e3e9ef;border-radius:3px;position:relative}
+  .tile .meter i{position:absolute;left:0;top:0;bottom:0;background:var(--accent);border-radius:3px}
+  .tile .meter u{position:absolute;top:-3px;bottom:-3px;width:2px;background:#6b7683}
+  .tile .spark{display:flex;gap:2px;align-items:flex-end;height:28px}
+  .tile .spark s{flex:1;background:#8fb0cf;text-decoration:none;border-radius:1px}
+  .ring{width:46px;height:46px;border-radius:50%;margin:2px auto 0;
+    background:conic-gradient(var(--accent) 0 62%, #e3e9ef 62% 100%);
+    display:flex;align-items:center;justify-content:center}
+  .ring span{width:32px;height:32px;border-radius:50%;background:#fbfcfd;display:flex;
+    align-items:center;justify-content:center;font-size:11.5px;font-weight:600}
+
+  .tree td.nm{white-space:nowrap}
+  .tree .ind1{padding-left:22px} .tree .ind2{padding-left:40px}
+  .tree .caret{color:var(--muted);margin-right:4px}
+  .tree tr.sel{background:#e8eef5}
+  .tree tr.hovered{background:#f1f5f9;outline:1px solid #c6d4e2}
+  .counts{display:inline-flex;gap:4px}
+  .pill{font-size:10.5px;border-radius:9px;padding:0 6px;line-height:16px;display:inline-block;
+    font-variant-numeric:tabular-nums}
+  .pill.r{background:var(--bad-soft);color:var(--bad);border:1px solid #f0c3bf}
+  .pill.a{background:var(--warn-soft);color:var(--warn);border:1px solid #ecd2a8}
+
+  #tip{position:absolute;z-index:150;background:#20242b;color:#eef2f7;border-radius:7px;
+    padding:8px 11px;font-size:12px;line-height:1.45;max-width:225px;display:none;
+    box-shadow:0 6px 20px rgba(10,16,24,.3)}
+  #tip b{display:block;margin-bottom:2px}
+
+  .finding{border:1px solid transparent;border-radius:7px;padding:9px 11px;margin:0 0 7px;font-size:13px}
+  .finding b{display:block;margin-bottom:2px}
+  .finding.bad{background:var(--bad-soft);border-color:#eab9b4}
+  .finding.warn{background:var(--warn-soft);border-color:#e8cfa4}
+  .finding.ok{background:var(--good-soft);border-color:#b8ddc9}
+
+  .rail{width:140px;flex:0 0 140px;display:flex;flex-direction:column;gap:13px;padding-top:2px}
+  .railttl{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);
+    padding-left:2px;margin-bottom:-4px}
+  .file{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 8px;
+    text-align:center;font-size:11.5px;line-height:1.3;transition:transform .18s, box-shadow .18s}
+  .file svg{display:block;margin:0 auto 6px}
+  .rail .railgap{height:14px}
+  @keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+  .file.beat{animation:beat 1.15s ease-in-out infinite;box-shadow:0 2px 12px rgba(31,78,121,.22)}
+
+  /* Where a step marks several separate areas at once, one dimmed cut-out would have to be
+     their bounding box, which lights up everything between them and leaves the card nowhere
+     to go. Rings mark each one instead, with no dimming, and the card goes to the bottom. */
+  .ringed{position:relative;z-index:201;outline:2px solid #1f4e79;outline-offset:4px;
+    border-radius:8px;box-shadow:0 0 0 6px rgba(31,78,121,.14)}
+  #spot{position:absolute;border-radius:9px;pointer-events:none;z-index:200;
+    box-shadow:0 0 0 9999px rgba(16,22,30,.56), 0 0 0 2px #fff inset;
+    transition:all .26s cubic-bezier(.4,0,.2,1);display:none}
+  /* While the tour is running, the screen behind it is inert. Clicking it does nothing and
+     above all does not dismiss the tour: the only ways out are NEXT to the end, BACK, or the
+     X, which asks once. Sits above the rings and below the card. */
+  #block{position:fixed;inset:0;z-index:205;display:none}
+  /* The build page is a layer over the blurred simulator, the same way the plan is. The tour
+     opens it rather than describing it, which was Javier's original note about showing the
+     main part and how the rest opens up. */
+  /* A PREVIEW, not the real layer. Small, pinned under the button it lives behind, with a
+     line drawn up to it, and it cycles its sections open so you can see they expand. The
+     real thing opens centre stage; this says where it is and roughly what you get. */
+  #buildpanel{position:absolute;width:356px;z-index:206;background:#fff;border-radius:10px;
+    padding:15px 17px 12px;display:none;box-shadow:0 14px 40px rgba(10,16,24,.28);
+    max-height:330px;overflow:hidden;border:1px solid var(--line)}
+  #buildpanel h2{margin:0 0 7px;font-size:15px}
+  #buildpanel p{margin:0 0 11px;font-size:12.3px;line-height:1.55;color:#2b323b}
+  #buildpanel .sec{display:flex;justify-content:space-between;align-items:center;
+    border-top:1px solid var(--line2);padding:8px 2px;font-size:12.5px;
+    transition:color .2s}
+  #buildpanel .sec span{color:var(--muted);font-size:11px}
+  #buildpanel .sec.open b{color:var(--accent)}
+  /* Animated rather than switched, so the expand is something you watch rather than a flicker
+     you miss. One snap read as a glitch; this reads as a click. */
+  #buildpanel .secbody{font-size:11.8px;line-height:1.55;color:#2b323b;padding:0 2px;
+    max-height:0;overflow:hidden;opacity:0;
+    transition:max-height .42s ease, opacity .3s ease, padding .42s ease}
+  #buildpanel .secbody.on{max-height:90px;opacity:1;padding:0 2px 9px}
+  #buildarrow{position:absolute;z-index:206;display:none;pointer-events:none}
+  #card{position:absolute;z-index:210;width:380px;background:#fff;border-radius:12px;
+    box-shadow:0 12px 38px rgba(10,16,24,.32);padding:19px 21px 16px;display:none}
+  #card.wide{width:470px;padding:26px 28px 22px}
+  #card h3{margin:0 0 8px;font-size:16px;padding-right:24px}
+  #card.wide h3{font-size:20px;margin-bottom:10px}
+  #card p{margin:0 0 15px;font-size:13.8px;line-height:1.58;color:#2b323b}
+  #card.wide p{font-size:14.6px;line-height:1.62}
+  #card .row{display:flex;align-items:center;gap:9px;justify-content:flex-end}
+  #card button{font:inherit;font-size:13px;border-radius:7px;padding:7px 17px;cursor:pointer;
+    border:1px solid var(--line);background:#fff;color:var(--ink)}
+  #card button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  #card .x{position:absolute;top:11px;right:12px;border:0;background:transparent;font-size:18px;
+    line-height:1;color:var(--muted);padding:3px 5px}
+
+  #confirm{position:fixed;inset:0;z-index:260;background:rgba(16,22,30,.5);display:none;
+    align-items:center;justify-content:center}
+  #confirm .c{background:#fff;border-radius:12px;padding:21px 23px;width:400px;
+    box-shadow:0 14px 42px rgba(10,16,24,.34)}
+  #confirm h3{margin:0 0 8px;font-size:16px}
+  #confirm p{margin:0 0 16px;font-size:13.8px;line-height:1.58;color:#2b323b}
+  #confirm .row{display:flex;gap:9px;justify-content:flex-end}
+  #confirm button{font:inherit;font-size:13px;border-radius:7px;padding:7px 17px;cursor:pointer;
+    border:1px solid var(--line);background:#fff;color:var(--ink)}
+  #confirm button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  #done{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:260;background:#20242b;
+    color:#eef2f7;border-radius:9px;padding:11px 16px;font-size:13px;display:none;
+    box-shadow:0 8px 26px rgba(10,16,24,.3)}

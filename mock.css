@@ -1,0 +1,1380 @@
+/* THE ONLY CHANGES TO THE TUTORIAL SCREEN. base.css is that screen, untouched.
+   Every rule below answers one line of Javier's feedback, and nothing else is
+   touched. If a rule here has no feedback line next to it, it should not exist. */
+
+/* ---- the frame fits one screen at 100%, and the page never scrolls --------
+   The tutorial screen grew with its content and he was reading it at 75% zoom
+   to make it fit. The frame is now a budget: chrome is measured, and the three
+   boxes inside share what is left. */
+html,body{height:100%; overflow:hidden;}
+/* The outer box keeps a real margin under the simulator box. There was 11px,
+   which read as the box touching the edge. The 30px this frame reserves for
+   the black mock-up bar does not exist in the product, so the room is there to
+   spend. Javier, 11 Oct. */
+.frame{margin:10px; height:calc(100vh - 20px);
+  display:flex; flex-direction:column; min-height:0; padding-bottom:24px;}
+.body{flex:1; min-height:0;}
+.view{display:flex; flex-direction:column; min-height:0; height:100%;}
+.cols{flex:1; min-height:0;}
+
+/* ---- the four tokens this page was using without ever defining them ------
+   index.html loads base.css and this file, not tokens.css, so every
+   var(--ink-faint), var(--ink-soft), var(--line-strong) and var(--surface-sunk)
+   in here resolved to nothing and the declaration was thrown away: faint text
+   was not faint, sunk panels were not sunk, and the thin scrollbars were the
+   browser's default chunky ones, which is what the build page was showing.
+   23 declarations, all silent. Values copied from tokens.css so the mock-up and
+   the product cannot drift. Javier, 10 Oct. */
+:root{--surface-sunk:#f7f9fb; --ink-soft:#5a6674; --ink-faint:#8a95a3;
+  --line-strong:#c3ccd8;}
+
+/* ---- the three top buttons sit in the middle, with the wider gap before the
+   tour, and the build-page button loses its different border ---------------- */
+.topbar .navbtn.ghost{border-style:solid; color:var(--ink);}   /* same as the others */
+.topbar .apart{margin-left:30px;}                              /* a different kind of thing */
+
+/* ---- the levers: smaller, their own borders, up on the line with the view
+   name, so the figures below them get the space back --------------------- */
+.headrow{display:flex; align-items:center; gap:12px; margin-bottom:11px;}
+.headrow .viewtag{margin:0; flex:0 0 auto;}
+.levers{margin:0 0 0 auto; border:0; background:transparent; padding:0; gap:7px;}
+.levers .lever{flex:0 0 118px; border:1px solid var(--line2); border-radius:6px;
+  padding:5px 9px 6px; background:#fbfcfd;}
+.levers .lever .lab{font-size:9.5px;}
+.levers .lever .track{margin:4px 0 2px;}
+.lever-sep{display:none;}
+.levers .lever#lever-week{border-color:var(--line);}   /* not a what-if */
+
+/* ---- deals left, people and findings right, 35 / 65 on this view ---------
+   The split changes by persona: the rep views give the deals more because they
+   live in them, RevOps and the CEO give them less because they are reading the
+   org and the findings. */
+.cols{display:flex; gap:10px; align-items:stretch;}
+.left{width:35%; flex:0 0 35%; display:flex; flex-direction:column; min-height:0;}
+.main{flex:1; min-width:0; display:flex; flex-direction:column; min-height:0;}
+.left .box#deals{flex:1; display:flex; flex-direction:column; min-height:0;}
+
+/* ---- three scroll areas, not one moving page ----------------------------- */
+.box .scroll{max-height:none; flex:1; min-height:0; overflow:auto;
+  scrollbar-width:thin; scrollbar-color:#c3ccd8 transparent;}
+.box#orgbox{flex:1 1 46%; display:flex; flex-direction:column; min-height:0;}
+#findings{flex:1 1 54%; overflow:auto; padding-right:2px;
+  scrollbar-width:thin; scrollbar-color:#c3ccd8 transparent;}
+.scroll::-webkit-scrollbar,#findings::-webkit-scrollbar{width:9px;}
+.scroll::-webkit-scrollbar-thumb,#findings::-webkit-scrollbar-thumb{
+  background:#c3ccd8; border-radius:99px; border:3px solid #fff;}
+
+/* ---- the bars are thinner. They were thick enough to read as childish ---- */
+.bar{height:6px;}
+.bar u{top:-3px; bottom:-3px; background:#14181f; width:2px;}  /* the pace tick, now the
+  darkest mark on the row, because the colour no longer carries the verdict */
+
+/* The bar takes the tone of the standing finding and has no colour of its own.
+   Neutral means nothing is flagged. */
+.bar i{background:#9fb0c2;}
+.bar.good i{background:#1a6b47;}
+.bar.warn i{background:#a8620a;}
+.bar.bad  i{background:#b3261e;}
+
+/* ---- the figures are bigger, and they are not all bars ------------------- */
+.tiles{gap:10px; margin-bottom:11px;}
+.tile{padding:11px 13px 12px;}
+.tile .v{font-size:24px; margin:4px 0 7px;}
+.tile .meter{height:7px;}
+.tile .spark{height:34px;}
+.ring{width:58px; height:58px;}
+.ring span{width:40px; height:40px; font-size:12.5px;}
+
+/* ---- the deal list reads like a CRM list view --------------------------- */
+/* One line per deal. The opportunity name is long enough to wrap to three
+   lines if it is allowed to, which turns a CRM list into a paragraph. */
+#dealtab{table-layout:fixed;}
+/* SAME DENSITY AS THE PEOPLE TABLE. Javier read these rows as a bigger font;
+   they are not, both tables are 12.5px and the findings beside them are 13px.
+   The rows were taller: 30px against the people table's 25, from a line-height
+   of 1.5 against its 1.2, which reads as weight even though no glyph changed.
+   Javier, 11 Oct. */
+#dealtab td,#dealtab th{padding:5px 7px; line-height:1.2; white-space:nowrap; overflow:hidden;
+  text-overflow:ellipsis;}
+/* COLUMN WIDTHS LIVE IN app.js, moved there 13 Oct. Three blocks in this file
+   set them and the last one won, while the rep table had inline widths from JS
+   that beat all three, so two of the four were dead and nobody could tell which.
+   The set and the widths are decided in one place now. See the CW note there. */
+.dot{display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:6px;
+  vertical-align:middle;}
+.dot.won{background:#1a6b47;} .dot.open{background:#9fb0c2;} .dot.lost{background:#b3261e;}
+th .ticknote{font-weight:600; text-transform:none; letter-spacing:0; color:var(--muted);}
+
+/* ---- the filter is two controls, role then person, and the roles include
+   SDR and CS ------------------------------------------------------------- */
+.picker{padding:8px 10px; display:flex; gap:7px;}
+.picker select{font:inherit; font-size:12.5px; background:#fbfcfd; border:1px solid var(--line);
+  border-radius:6px; padding:6px 8px; min-width:0; flex:1;}
+
+
+/* ---- FOUR FORMATTING FAULTS, 6 Oct ------------------------------------- */
+
+/* 1. A finding whose tone is "good" had no style at all, so it rendered with no
+   colour. base.css styles .ok, the library emits good. Both map to the same
+   thing rather than inventing a fourth tone. */
+.finding.good{background:var(--good-soft); border-color:#b8ddc9;}
+
+/* 2. The figures got taller and the pictures inside them did not, which left a
+   block of dead space under each number. The art now sits at the bottom of the
+   tile and the sparkline grows into whatever height the row has. */
+.tile{display:flex; flex-direction:column;}
+.tile .meter,.tile .spark,.tile .ring{margin-top:auto;}
+.tile .meter{height:10px;}        /* the bar grew with the tile, not just the box */
+.tile .meter u{top:-4px; bottom:-4px;}
+.tile .spark{height:auto; flex:1 1 auto; min-height:36px; align-items:flex-end;}
+.ring{width:64px; height:64px;}
+.ring span{width:45px; height:45px; font-size:13px;}
+
+/* 3. The header row left a hole between the view name and the levers. The
+   levers now take the whole line to the right of the name. */
+.headrow .levers{flex:1;}
+.headrow .levers .lever{flex:1 1 0; min-width:92px;}
+
+/* 4. THE RIGHT COLUMN NEVER OVERFLOWS THE FRAME. The first attempt gave the
+   table and the findings a minimum height, which on a short window pushed both
+   of them straight out through the bottom of the panel. A minimum height is a
+   promise the frame cannot keep. They share what is left instead, and on a very
+   short window the table shows fewer rows and scrolls, which is what a scroll
+   area is for. */
+/* The table gets the extra height, not the findings. An even split sent every
+   pixel freed anywhere on the screen to the findings, which already scroll. */
+/* The tree takes WHAT IT NEEDS, capped, and the findings take the rest. A fixed
+   3:2 split gave the tree three fifths of the column whatever was in it, so on
+   a five-row org (#small) it sat half empty directly above a findings pane that
+   was scrolling with cards out of sight. It got worse on a bigger screen, not
+   better, because every pane grows with the window and so did the empty part.
+   The cap keeps a thirty-row org from swallowing the findings. Javier, 7 Oct. */
+/* 50% and 35% are MEASURED, not picked. Across #small, #full and #large at both
+   551 and 735 tall: #small loses all 92px of its dead space and hands it to the
+   findings (161 -> 253), #full stays where it was (tree 212 -> 214, findings
+   161 -> 158), and #large gives the tree 43px more, which is the direction
+   Javier already asked for, the table gets the extra height, not the findings,
+   which already scroll. */
+.box#orgbox{flex:0 0 auto; max-height:40%; min-height:0;}
+#findings{flex:1 1 0; min-height:0;}
+
+/* The figures: the PICTURE gets bigger, not the box around it. The box was
+   growing and the art inside it stayed the same size, which is what left the
+   dead space. */
+/* Javier, 6 Oct: the figures matter less than he first thought, so the BOX gets
+   smaller rather than the picture bigger. Shorter tiles hand the height back to
+   the table and the findings, which are the part worth reading. */
+.tiles{flex:0 0 auto;}
+.tile{padding:6px 9px 7px;}
+.tile .k{font-size:9.5px;}
+.tile .v{font-size:16px; margin:0 0 4px;}
+.tile .meter{height:8px; border-radius:3px;}
+.tile .meter i{border-radius:3px;}
+.tile .meter u{top:-2px; bottom:-2px; width:2px;}
+.tile .spark{min-height:20px;}
+.ring{width:40px; height:40px;}
+.ring span{width:28px; height:28px; font-size:10px;}
+
+/* ---- the file rail, 6 Oct -----------------------------------------------
+   It was taking 140px of width and a lot of height for five things nobody
+   reads, only clicks. Smaller icon, tighter card, narrower rail: the width it
+   gives back goes straight to the deal table and the org table. */
+/* THE FILE RAIL, 11 Oct. It was reading as an afterthought beside two big
+   tables: a 9.5px title sitting on top of the first card with a NEGATIVE
+   margin, 74px cards and 7px between them. The title now matches REVOPS
+   (ADMIN) at 11px, the cards get real height, and the gaps get real air, so
+   the group of four ends at about 571 against the people table's 598.
+
+   The sizes step down with the window, because four 100px cards plus the
+   tracker do not fit a 551px laptop. */
+/* The cards space off EACH OTHER rather than off a container gap, so the title
+   is not forced to sit a full card-gap below itself. That gap was 30px while
+   the title sat 10px under the top bar, which is backwards: the title belongs
+   with the files, not with the button above it. Javier, 13 Oct. */
+.rail{width:112px; flex:0 0 112px; gap:0; padding-top:14px;}
+.rail .file + .file{margin-top:20px;}
+.file{padding:7px 5px 6px; font-size:10.5px; line-height:1.25;}
+.file svg{width:24px; height:29px; margin:0 auto 4px;}
+.rail .railgap{height:10px;}
+
+
+/* ---- smaller chrome, 6 Oct ----------------------------------------------
+   The left-lever version is dropped. These are the compact cards it proved,
+   applied where the levers actually live, plus the same trim on the top bar:
+   the buttons were carrying more padding than anything else on the screen. */
+.levers .lever{flex:1 1 0; min-width:0; padding:4px 8px 5px;}
+.levers .lever .lab{font-size:9px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.levers .lever .val{font-size:10.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.levers .lever .track{margin:4px 0 2px; height:4px;}
+.levers .lever .track u{width:11px; height:11px; top:-3.5px;}
+
+/* 18px, not 8: the button row was sitting almost on the simulator box.
+   Javier, 13 Oct. */
+.topbar{padding:2px 2px 18px; position:relative;}
+/* Taken out of the flow and centred on the bar itself, so the pair cannot
+   drift with whatever sits either side of it. The bar spans the outer box's
+   inner width, so its centre IS the outer box's centre, which is what Javier
+   asked for. Javier, 11 Oct. */
+.topbar .mid{position:absolute; left:50%; top:2px; transform:translateX(-50%);
+  display:flex; gap:8px;}
+/* base.css gives these cursor:default, which is right on the tutorial screen
+   where they are labels. Here they are buttons, and the file rail already shows
+   a finger, so the top bar was the one clickable thing on screen pretending not
+   to be. Javier, 10 Oct. */
+.navbtn{padding:6px 12px; font-size:11px; cursor:pointer;
+  transition:border-color .12s ease, color .12s ease, background-color .12s ease;}
+/* The same reaction the "?" marker has: it fills with the one blue. Javier
+   asked for them to match, and they should, because they are the same promise
+   to the user. */
+/* .topbar, not a bare .navbtn: HOW DID I BUILD THIS carries
+   `.topbar .navbtn.ghost{color:var(--ink)}` from the top of this file, which
+   out-specifies a plain `.navbtn:hover` and left that one button with dark
+   text on the blue while the other three went white. */
+.topbar .navbtn:hover{border-color:var(--accent); background:var(--accent); color:#fff;}
+.navbtn:active{transform:translateY(1px);}
+
+/* The same question asked of everything else on the screen. Sort headers, tree
+   carets, "?" markers, file cards, rows and tiles already said pointer. These
+   did not: the preset switcher, the two filters, and the week lever, which is
+   clickable along its whole track. The four what-if levers are deliberately
+   left alone, because they do not do anything yet and a finger over a dead
+   control is a lie. Javier, 10 Oct. */
+.picker select{cursor:pointer;}
+#lever-week{cursor:pointer;}
+#lever-week:hover .track i{background:var(--brand, var(--accent));}
+
+
+/* ---- SHORT WINDOWS, 7 Oct -----------------------------------------------
+   Javier's laptop is 551 pixels of viewport; his desktops are closer to 900,
+   and most visitors will be between the two. So the figures collapse by HEIGHT
+   rather than by a decision: above 700 they are the four cards, below it they
+   are one line, which hands about 60 pixels back to the table and the findings
+   without anybody choosing anything. Floor is 1366x640, normal case 1920x900. */
+@media (max-height: 700px){
+  /* Every one of these min-width:0 lines is load-bearing. A flex item will not
+     shrink below the width of its own content unless it is told it may, and the
+     labels are nowrap, so the first version pushed the fourth figure off the
+     edge and under the file rail. */
+  .tiles{gap:6px; margin-bottom:8px; min-width:0;}
+  /* Label over value, art to the right. One line each was tried first and the
+     labels truncated to "RE..." and "WHAT I...", which is worse than the
+     overflow it was fixing: a figure nobody can name is not a figure. Two short
+     lines costs nothing in height and keeps every label whole. */
+  /* THE CHARTS STAY. An earlier version of this block hid all three on a short
+     window, on a measurement taken against a layout that no longer existed: at
+     1280 wide the figure is 170px, and when the label and the art shared ONE
+     LINE the 119px label and the 64px art could not both fit. The figures are
+     label over value over art now, three stacked lines, so the art competes
+     with nothing for width. Re-measured 7 Oct at 1280x551: the tile is 170x86,
+     the label needs 150 of the 150 it has with no truncation, and the three
+     lines come to about 40px inside an 86px box.
+
+     Hiding them cost Javier the whole point of two of the four figures. WHERE
+     IT CAME FROM and COMP VS GROSS PROFIT carry no value text, so with the art
+     gone they rendered as a label above an empty line. His 100% zoom is 551
+     tall and his 75% is 735, which is why it looked broken at 100% and fine at
+     75%, and why two passes at "the small screen version" never touched it. */
+  .tile{flex:1 1 0; min-width:0; overflow:hidden; padding:5px 9px;}
+  .tile .k{font-size:8.5px; letter-spacing:.03em; white-space:nowrap;}
+  .tile .v{font-size:15px; margin:1px 0 0; white-space:nowrap;}
+  /* Full tile width, not the 64px the side-by-side layout needed. */
+  .tile .meter{width:auto; height:6px; flex:0 0 auto; margin-top:5px;}
+  .tile .spark{width:auto; flex:1 1 auto; height:auto; min-height:15px;
+    margin-top:5px; gap:1px;}
+  .ring{width:28px; height:28px; flex:0 0 28px; margin:3px auto 0;}
+  .ring span{width:19px; height:19px; font-size:7.5px;}
+}
+
+
+/* ======================================================================
+   JAVIER'S BATCH, 7 Oct. Each block is one line of his feedback.
+   ====================================================================== */
+
+/* "WK doesn't work without the word close, we just have a random number"
+   and "a massive gap between the stage and ACV". The stage column was
+   17% wide holding the word Won, so the space showed up as a hole.
+   The widths themselves moved to app.js on 13 Oct; the header rename stands. */
+
+/* "The levers are way too big without any reason" and "what would happen
+   when there's only one on the other screens?" They were stretching to fill
+   the row, so five levers looked bloated and one lever would have looked
+   absurd. Fixed width now: the row grows to the right of the view name and
+   stops, and one lever is the same size as one of five. */
+.headrow .levers{flex:0 1 auto; margin-left:auto;}
+.headrow .levers .lever{flex:0 0 132px;}
+
+/* "The gap on the BAN numbers is huge and that makes no sense, while the
+   donut chart being so small also makes no sense." The art was pinned to the
+   bottom of the card with the number at the top, so the taller the card got
+   the bigger the hole in the middle. The art now follows the number. */
+@media (min-height: 701px){
+  .tile{justify-content:flex-start;}
+  .tile .meter,.tile .spark,.tile .ring{margin-top:4px;}
+  .tile .meter{height:12px;}
+  .tile .spark{flex:0 0 auto; height:34px; min-height:0;}
+  .ring{width:62px; height:62px; margin:4px auto 0;}
+  .ring span{width:44px; height:44px; font-size:12.5px;}
+}
+
+/* "The whole organization and NAME, ROLE, AGAINST TARGET are too big compared
+   to the fonts that matter more." They were 11px against 12.5px of content,
+   so the labels were competing with the data. Labels drop, content does not:
+   a panel title and a column header are signposts, not reading matter. */
+.box h4{font-size:9.5px; padding:7px 10px;}
+table th{font-size:9.5px; padding:5px 8px;}
+th .ticknote{font-size:9.5px;}
+/* 13px, bigger than REVOPS (ADMIN) at 11px. At the same size it read as
+   smaller, because it sits over a narrow column against a wide one. */
+.railttl{font-size:13px; letter-spacing:.07em; margin:0 0 10px;}
+.tile .k{font-size:9.5px;}
+.lever .lab{font-size:9px;}
+
+/* "The resume needs to move where I highlight." It is about the author rather
+   than about the plan, so it sits at the bottom of the rail instead of being
+   separated by a gap in the middle of it. */
+.rail{position:relative;}
+.rail .railgap{flex:1 1 auto; height:auto; min-height:14px;}
+
+
+/* ======================================================================
+   ALIGNMENT PASS, 7 Oct. The levers moved out of the full-width band and
+   into the right column, which is what the rest of this block follows from.
+   ====================================================================== */
+
+/* The view name is now a line of its own at the top of the pane, so the two
+   columns start at the same height. */
+.view > .viewtag{margin:0 0 8px;}
+.headrow{display:none;}
+
+/* The levers fill the right column edge to edge and sit directly above the
+   figures, so the two rows line up instead of one of them floating off to the
+   right. Five across, equal width: with one lever on another screen it is the
+   same card, not a slider the width of the screen. */
+.main > .levers{display:flex; gap:8px; margin:0 0 9px; padding:0; border:0;
+  background:transparent;}
+.main > .levers .lever{flex:1 1 0; min-width:0; border:1px solid var(--line2);
+  border-radius:6px; padding:5px 9px 6px; background:#fbfcfd;}
+
+/* The filter box matches the levers' height, which is what makes the deal
+   table and the figures start on the same line. */
+/* 52px is the measured height of a lever card, not a guess: the deal table and
+   the figures only line up if this box is exactly as tall as the lever row. */
+.left #personas{min-height:52px; display:flex; flex-direction:column; justify-content:center;
+  margin-bottom:9px;}
+.left #personas h4{display:none;}      /* the label is the dropdown itself now */
+.left #personas .picker{padding:7px 10px;}
+
+/* The figures: a fixed, compact height so the card cannot grow a hole in the
+   middle of itself, with the art filling whatever is left under the number. */
+.tiles{height:86px;}
+.tile{height:86px; justify-content:flex-start;}
+@media (min-height: 701px){
+  .tile .meter{height:10px; margin-top:5px;}
+  .tile .spark{flex:1 1 auto; height:auto; min-height:0; margin-top:5px;}
+  .ring{width:44px; height:44px; margin:2px auto 0;}
+  .ring span{width:31px; height:31px; font-size:10px;}
+}
+
+/* The resume pins to the BOTTOM of the rail. It did not move last time because
+   the rail is only as tall as its contents: the row it sits in aligns its
+   children to the top, so there was no spare height for the gap to claim. */
+.body{align-items:stretch;}
+.rail{height:100%;}
+
+
+/* ---- the file rail, 7 Oct ------------------------------------------------
+   "YOUR FILES is not centred" and "Compensation Agreement is bigger because it
+   is two lines". The cards are one height now whatever the label does, so a
+   name that wraps no longer makes its card taller than its neighbours, and the
+   label over them is centred like everything else in the column. */
+.railttl{text-align:center; padding-left:0;}
+/* 74px, the size they were. They went to 100 on 11 Oct chasing the people
+   table's bottom edge, which was never what Javier asked for: the note was
+   about the gaps and the title, not the cards. The group of four now ends
+   around 490 rather than 595, and that is fine. Javier, 13 Oct. */
+.file{height:74px; display:flex; flex-direction:column; align-items:center;
+  justify-content:center;}
+.file svg{margin:0 0 5px;}
+
+
+/* A stale deal: still forecast to close this quarter and sitting in the same
+   stage far too long. It is the one state in the list worth a colour. */
+.dot.stale{background:#a8620a;}
+#dealtab tr.stale td{background:#fdf9f2;}
+
+
+/* Sortable columns: the header is a control, so it says so on hover and the
+   column being sorted keeps its caret. */
+#dealtab th.sortable{cursor:pointer; user-select:none;}
+#dealtab th.sortable:hover{color:var(--ink);}
+#dealtab th.on{color:var(--accent);}
+#dealtab th .caret{margin-left:4px; font-size:10px; color:#b9c2cd;}
+#dealtab th.on .caret{color:var(--accent);}
+#dealtab th.sortable:hover .caret{color:var(--muted);}
+
+
+/* The org tree opens and closes. A department is a level of its own, between
+   the company and the managers. */
+.tree .ind3{padding-left:58px;}
+/* A fourth level, because the admin's table now hangs the departments off the
+   CEO rather than off the company. Javier, 15 Oct. */
+.tree .ind4{padding-left:76px;}
+.tree tr.dept td{background:#fafbfd;}
+.tree .tw{cursor:pointer; display:inline-block; width:12px;}
+.tree .tw:hover{color:var(--accent);}
+
+
+/* The week lever has NO custom track treatment. What separates the quarter close
+   from week 13 is SPACING and nothing else: the weeks take the first 84% of the
+   track at 7% each and the close sits at 100%, so the last gap is more than
+   twice any other. A rule at 88%, then a dashed lead-in to a ring, then even
+   fourteen stops: three wrong answers to a problem the spacing already solves.
+   The mapping lives in app.js. Javier, 7 Oct. */
+
+
+/* The amber bar was the findings-card amber, which is a dark brown once it is a
+   solid 6px block rather than a thin border on a pale panel. Lighter here, the
+   card keeps its own. */
+.bar.warn i{background:#c8881f;}
+
+
+/* ======================================================================
+   THE CHUNK, 7 Oct, second pass after Javier's review.
+   ====================================================================== */
+
+/* ---- the four headline figures --------------------------------------
+   The marks are now close enough in height that no tile has a hole: the ring
+   sets the tile and the two meters fill their slot with a caption instead of
+   32px of nothing. The caption is not decoration, it is the one fact that
+   tells the two identical-looking meters apart, one tick is a pace and the
+   other is a ceiling. */
+.tile{display:flex; flex-direction:column;}
+.tile .art{margin-top:auto;}
+.tile .meter{height:11px; border-radius:6px;}
+.tile .meter i{border-radius:6px;}
+.tile .meter u{top:-2px; bottom:-2px;}
+.tile .cap{margin-top:4px; font-size:8.5px; letter-spacing:.03em; color:var(--ink-faint);
+  text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+/* COMP VS GROSS PROFIT is a part of a whole, not a progress bar, so it is a
+   stacked bar: the track is the whole of gross profit, the fill is what
+   variable pay takes of it, and the line sits at 25%. A 2px gap in the surface
+   colour does the separating, not a stroke. The donut it replaces could not
+   carry a value, a threshold and a direction at 40px, which is why three
+   passes at it failed. */
+.tile .pow{position:relative; height:11px; border-radius:4px; background:#e3e9ef;}
+.tile .pow i{position:absolute; left:0; top:0; bottom:0; border-radius:4px 0 0 4px;
+  background:var(--accent); box-shadow:2px 0 0 0 #fbfcfd;}
+.tile .pow u{position:absolute; top:-3px; bottom:-3px; width:2px; margin-left:-1px;
+  background:#44505e; border-radius:1px;}
+.tile.warn .pow i{background:#c8881f;}
+.tile.bad  .pow i{background:#b4433b;}
+/* A figure takes the tone of the finding that owns it, so the row that should
+   be read first is no longer the only thing on screen with no opinion. */
+.tile.warn .meter i, .tile.warn .spark s{background:#c8881f;}
+.tile.bad  .meter i, .tile.bad  .spark s{background:#b4433b;}
+.tile.good .meter i{background:#2f7d55;}
+/* MEASURED, not guessed: the tile row is 86px and the sparkline tile was
+   overflowing it by 11, which clipped its caption. The sparkline is the only
+   mark with real height, so it is the one that gives the caption its room. */
+@media (max-height: 700px){
+  .tile .spark{height:16px; min-height:16px;}
+  .tile .cap{font-size:8px;}
+}
+@media (min-height: 701px){
+  .tile .spark{height:14px; min-height:0; flex:0 0 auto;}
+}
+
+/* ---- the hover card ---------------------------------------------------
+   A shape, not a list: a tinted head in the row's own tone, the verdict in
+   money, the components as bars, the facts, then one forward line. */
+/* The 12px foot is one more line of air at the bottom of every card, people,
+   deals and figures alike: the last row was sitting on the border. */
+.hovcard{position:fixed; z-index:400; width:318px; max-height:74vh; overflow:auto;
+  display:none; background:#fff; border:1px solid var(--line-strong);
+  border-radius:9px; box-shadow:0 10px 30px rgba(16,32,52,.18);
+  padding-bottom:12px; font-size:11.5px; line-height:1.45; color:var(--ink);}
+.hovcard.on{display:block;}
+.hovcard .hh{padding:10px 13px 8px; border-bottom:1px solid var(--line2);
+  border-left:4px solid var(--line-strong); border-radius:8px 0 0 0;
+  background:#f7f9fb;}
+.hovcard .hh.good{border-left-color:#2f7d55; background:#f1f8f3;}
+.hovcard .hh.warn{border-left-color:#c8881f; background:#fdf8ef;}
+.hovcard .hh.bad {border-left-color:#b4433b; background:#fdf2f1;}
+.hovcard h5{margin:0; font-size:12.5px; font-weight:650; letter-spacing:-.01em;}
+/* CLEAR OF THE CLOSE BUTTON. The X is pinned at top 6, right 7 and 20px wide,
+   so a right-floated chip landed underneath it on every pinned card.
+   Javier, 18 Oct. */
+.hovcard.pinned .tag{margin-right:22px;}
+.hovcard .tag{float:right; margin:-1px 0 0 8px; padding:2px 7px; border-radius:4px;
+  font-size:9px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  background:#e8edf2; color:var(--ink-soft);}
+.hovcard .tag.won{background:#e4f1e9; color:#2f7d55;}
+.hovcard .tag.lost{background:#fae7e5; color:#9c3c34;}
+.hovcard .tag.warn{background:#fbeeda; color:#9a6512;}
+.hovcard .rol{display:block; margin-top:1px; font-size:9px; text-transform:uppercase;
+  letter-spacing:.07em; font-weight:700; color:var(--ink-faint);}
+/* The verdict is the card. It is in money, and it is the only line in this
+   size, so the eye lands on it before anything else. */
+.hovcard .vd{margin:0; padding:10px 13px 2px; font-size:12.5px; line-height:1.4;
+  font-weight:600; color:var(--ink);}
+.hovcard .vd.sub2{padding-top:3px; font-size:11.5px; font-weight:650;
+  color:var(--ink-soft);}
+.hovcard .vd.sub2.up{color:#2f7d55;}
+.hovcard .vd.sub2.down{color:#b4433b;}
+.hovcard dd .d{font-style:normal; font-weight:650; margin-left:6px;
+  color:var(--ink-faint);}
+.hovcard dd .d.up{color:#2f7d55;}
+.hovcard dd .d.down{color:#b4433b;}
+.hovcard dd.up{color:#2f7d55;}
+.hovcard .cn{margin:0; padding:8px 13px 0; font-weight:650; color:#1f4e79;}
+.hovcard .cmps{padding:9px 13px 2px;}
+.hovcard .cmp{margin-bottom:7px;}
+.hovcard .cl{font-size:10px; text-transform:uppercase; letter-spacing:.05em;
+  color:var(--ink-faint); font-weight:700;}
+.hovcard .cv{float:right; font-weight:650; font-variant-numeric:tabular-nums;}
+.hovcard .cv em{font-style:normal; font-weight:400; color:var(--ink-faint);}
+.hovcard .cb{clear:both; position:relative; height:7px; margin-top:3px;
+  background:#eaeff4; border-radius:4px; overflow:hidden;}
+.hovcard .cb i{position:absolute; inset:0 auto 0 0; background:#d4dde6; border-radius:4px;}
+.hovcard .cb b{position:absolute; inset:0 auto 0 0; background:var(--accent); border-radius:4px;}
+.hovcard dl{margin:0; padding:8px 13px 2px; display:grid;
+  grid-template-columns:auto 1fr; gap:3px 12px;}
+.hovcard dt{color:var(--ink-soft);}
+.hovcard dd{margin:0; text-align:right; font-weight:600; font-variant-numeric:tabular-nums;}
+.hovcard dd.over, .hovcard dd.under{color:#b4433b;}
+.hovcard .fw{margin:0; padding:9px 13px; margin-top:8px; background:#f4f7fa;
+  border-top:1px solid var(--line2); color:var(--ink); font-weight:600;}
+.hovcard .nt{margin:0; padding:8px 13px 11px; color:var(--ink-soft);}
+.hovcard .hovx{position:absolute; top:6px; right:7px; width:20px; height:20px;
+  display:flex; align-items:center; justify-content:center; font:inherit; font-size:15px;
+  line-height:1; border:0; border-radius:4px; background:transparent;
+  color:var(--ink-faint); cursor:pointer;}
+.hovcard .hovx:hover{background:rgba(16,32,52,.08); color:var(--ink);}
+/* A POINTER PROMISES MORE THAN PINNING. Every row that opens a hover card also
+   pins it on click, so the cursor was not lying, but Javier, 14 Oct: "people
+   will expect more from it if it has it." The pin stays and the finger goes,
+   except where a click does something to the screen: selecting on RevOps, and
+   picking one of your own people on a manager's table. */
+.view.cansel tr[data-kind]:hover, #tree tr[data-pick]:hover{cursor:pointer;}
+
+/* THE FINDINGS AREA WHEN THERE ARE NO FINDINGS YET. Only the admin's console
+   has this state: every other view belongs to a person and their findings are
+   always theirs. It fills the panel on purpose, so an empty space reads as
+   something to do rather than as nothing to see. Javier, 15 Oct. */
+.findhint{display:flex; align-items:center; justify-content:center; height:100%;
+  min-height:120px; border:1px dashed var(--rule); border-radius:6px;
+  background:rgba(16,32,52,.015);}
+.findhint p{margin:0; padding:0 24px; max-width:34em; text-align:center;
+  font-size:12px; line-height:1.5; color:var(--ink-faint);}
+
+/* The CEO's rows point the deal table, so they carry the finger too. */
+.view.canpick #tree tr[data-kind="person"]:hover,
+.view.canpick #tree tr[data-kind="team"]:hover{cursor:pointer;}
+
+/* ---- the "?" ----------------------------------------------------------
+   Square and darker. A circle the colour of the rule it sits on did not read
+   as a control at all beside AGAINST TARGET. Click, not hover, so it does not
+   fight the row hover underneath it. */
+.q{display:inline-flex; align-items:center; justify-content:center;
+  width:13px; height:13px; margin-left:6px; vertical-align:middle;
+  border-radius:3px; border:1px solid var(--ink-faint); color:var(--ink-soft);
+  font-size:9px; font-weight:700; line-height:1; cursor:pointer; flex:0 0 13px;}
+.q:hover{border-color:var(--accent); color:#fff; background:var(--accent);}
+.levers .lever .lab{display:flex; align-items:center;}
+.levers .lever .lab .q{margin-left:auto;}
+
+/* ---- the deals table --------------------------------------------------
+   The header stays put. Sorting and the column names were both unreachable
+   twenty rows down. */
+/* border-collapse:collapse is what broke this: a collapsed table paints its
+   cell borders on the table, so a sticky th has nothing opaque under it and the
+   rows scroll straight over the header. Separate borders, an opaque background
+   and its own stacking context. */
+#dealtab{border-collapse:separate; border-spacing:0;}
+#dealtab thead th{position:sticky; top:0; z-index:5; background:#fff;
+  box-shadow:inset 0 -1px 0 var(--line);}
+#dealtab tbody td{border-bottom:1px solid var(--line2);}
+/* The table itself is untouched beyond the sticky header. */
+
+/* ---- the two documents that ask before they go ------------------------ */
+.modalwrap{position:fixed; inset:0; z-index:500; background:rgba(16,28,44,.4);
+  display:flex; align-items:center; justify-content:center;}
+.modal{background:#fff; border-radius:10px; width:470px; max-width:92vw;
+  padding:18px 20px; box-shadow:0 18px 48px rgba(10,20,36,.32);}
+.modal h5{margin:0 0 12px; font-size:15px; font-weight:650;}
+.modal .blk{font-size:12px; line-height:1.5; padding:10px 12px; border-radius:7px;
+  margin-bottom:9px;}
+/* A red finding is a finding and a standing notice is a note, the separation
+   the tool already uses. Nothing new invented for the dialog. */
+.modal .blk.warn{background:#fdf2f1; border:1px solid #c0514a;}
+.modal .blk.note{background:#f4f6f9; border:1px solid var(--line);}
+/* Secondary left, primary filled right, the way the tour already does it. */
+.modal .btns{display:flex; gap:8px; margin-top:14px; justify-content:flex-end;}
+.modal button{font:inherit; font-size:12px; padding:7px 14px; border-radius:6px;
+  cursor:pointer;}
+.modal .go{background:var(--accent); border:1px solid var(--accent); color:#fff;
+  font-weight:600;}
+.modal .back{background:var(--panel, #fff); border:1px solid var(--line);
+  border-radius:7px; color:var(--ink); padding:7px 14px;}
+.rail .file{cursor:pointer;}
+
+/* ======================================================================
+   HOW DID I BUILD THIS, 10 Oct.
+   A layer over the blurred simulator, exactly like the plan opens.
+
+   THE CARD NEVER EXCEEDS THE VIEWPORT. It is a flex column: the title is
+   fixed, the opening and the six headers share one scroll area, and the
+   closing line is pinned to the foot so it is always reachable. An open
+   section scrolls inside its own frame at about two paragraphs, the way the
+   deals table does, so opening one never pushes the rest off the screen.
+
+   THE BLUR LIFTS WITH THE LAYER, on every exit path. The tour's blur bug is
+   the reason that is written down rather than assumed: it belongs to the
+   overlay, so it is applied by a class on the frame and removed with it.
+   ====================================================================== */
+/* TWO BLURS, AND THEY ARE NOT THE SAME JOB.
+
+   `.blurred` is the WHOLE frame, used by HOW DID I BUILD THIS, which puts a
+   sheet over the console and wants everything behind it soft.
+
+   `.tourblur` is the tour's, and it blurs PER PANEL, because a CSS filter on
+   an ancestor cannot be undone by a descendant: with .body blurred whole
+   there is no way to make the thing the tour is pointing at sharp, and every
+   step before the simulator highlighted a button the reader could not read.
+   Javier, 20 Oct. tour.js puts .tblur on every panel and takes it off the
+   ones containing the step's target.
+
+   THEY MUST STAY SEPARATE. On 20 Oct I rewrote `.blurred` into the per-panel
+   form and silently took the blur off the build page, which was the only
+   other thing using it. */
+.frame.blurred > .topbar,
+.frame.blurred > .body{filter:blur(3px); pointer-events:none;}
+.frame.tourblur{pointer-events:none;}
+.tblur{filter:blur(3px);}
+/* THE CARD HANGS FROM THE TOP, IT IS NOT CENTRED. Centring was the whole
+   cause of "everything moves up": a centred box that grows grows in both
+   directions, so opening a section pushed the title and the opening upward.
+   Pinned to the top it can only grow downward, and everything above the
+   section you opened stays exactly where it was. The 5vh keeps it off the
+   edge of the screen without costing the card much height. Javier, 10 Oct. */
+.layer{position:fixed; inset:0; z-index:600; display:flex;
+  align-items:flex-start; justify-content:center; padding:5vh 18px 18px;
+  background:rgba(16,28,44,.28);}
+.layer[hidden]{display:none;}
+
+/* 660px is about 85 characters at this size, which is where a long paragraph
+   stops being work to read. */
+/* THE CARD FOLLOWS ITS CONTENTS, UNDER A CEILING. A fixed height was tried
+   first and it held still, but with nothing open it left about 300 pixels of
+   white between the last header and the closing line. The height was never the
+   problem; the centring was. So the height goes back to the content and the
+   ceiling keeps the card on one screen: shut, it stops after the last header,
+   and open, it runs to the bottom of the window exactly as it does now, with
+   the flex chain capping the body rather than the card running off.
+   Javier, 10 Oct. */
+.sheet{position:relative; width:660px; max-width:100%; max-height:100%;
+  display:flex; flex-direction:column; background:#fff; border-radius:12px;
+  box-shadow:0 24px 60px rgba(10,20,36,.34); padding:32px 32px 20px;
+  color:var(--ink);}
+.sheet h2{margin:0 0 10px; font-size:20px; font-weight:650; letter-spacing:-.02em;
+  flex:0 0 auto;}
+.sheetx{position:absolute; top:19px; right:13px; width:26px; height:26px;
+  display:flex; align-items:center; justify-content:center; font:inherit;
+  font-size:19px; line-height:1; border:0; border-radius:5px;
+  background:transparent; color:var(--ink-faint); cursor:pointer;}
+.sheetx:hover{background:rgba(16,32,52,.08); color:var(--ink);}
+/* THE OPENING HOLDS STILL. It has a height of its own and it does not move
+   when a section opens. The first attempt put it in the same scroll area as
+   the headers, so opening a section dragged the opening off the top, which is
+   the thing Javier was pointing at. Nothing in here scrolls now except the one
+   open body, so the opening above and the closing line below are fixed points.
+   Javier, 10 Oct. */
+.sheetscroll{flex:1 1 auto; min-height:0; display:flex; flex-direction:column;}
+/* THE OPENING IS SIZED BY THE WINDOW, NOT BY A NUMBER. A fixed 206px was
+   measured against a 551px laptop, so on anything taller the card sat in the
+   middle of the screen with dead space under it. 38vh is 209px there,
+   unchanged, 267 on a 704px window and 342 on a big monitor.
+
+   It is a share of the VIEWPORT rather than of the space left over, which is
+   the point: the height cannot change when a section opens, so the opening
+   still cannot move. Letting it take its natural height when nothing is open
+   would look better closed and would put the sliding straight back.
+   Javier, 10 Oct. */
+/* The opening is framed like the section bodies, because it is the same kind
+   of thing: the first box in a stack of boxes rather than loose text floating
+   over them. It takes its natural height and only scrolls if the copy ever
+   outgrows the cap. The card no longer grows, so the height does not have to
+   be pinned to the viewport to hold still.
+
+   The cap is deliberately short. The opening runs long enough to scroll at any
+   height the cap could sensibly take, so the choice is not whether it scrolls
+   but how much of the card it eats, and the section you actually opened has
+   the better claim on the space. Javier, 10 Oct. */
+.sheet .lede{flex:0 0 auto; max-height:min(230px, 26vh); overflow-y:auto;
+  padding:10px 13px; background:var(--surface-sunk, #f7f9fb);
+  border:1px solid var(--line2); border-radius:7px;
+  scrollbar-width:thin; scrollbar-color:var(--line-strong) transparent;}
+.sheet .lede p{font-size:13px; line-height:1.6; margin:0 0 10px; color:var(--ink);}
+.sheet .lede p:last-child{margin-bottom:0;}
+
+/* NOTHING HERE SCROLLS. The sections region used to be a scroller with another
+   scroller inside each open body, so reaching a lower section pushed its
+   header off the top, the open box sat wherever the scroll had left it, and
+   Chrome gave up repainting the headers often enough to draw two of them on
+   top of each other. Now the six headers are always on screen in the same
+   place and the open body is the only scroller on the card.
+   Javier, 10 Oct. */
+.secs{flex:1 1 auto; min-height:0; display:flex; flex-direction:column;
+  overflow:hidden; margin-top:10px;}
+
+.sheet details{flex:0 0 auto; border-top:1px solid var(--line2);}
+.sheet details:last-of-type{border-bottom:1px solid var(--line2);}
+/* The open one takes whatever height the closed ones left. */
+.sheet details[open]{flex:1 1 auto; min-height:0;
+  display:flex; flex-direction:column;}
+.sheet details[open] > summary{flex:0 0 auto;}
+.sheet summary{list-style:none; cursor:pointer; padding:9px 22px 9px 0;
+  position:relative; font-size:12.5px; font-weight:650; color:var(--ink);}
+.sheet summary span{font-weight:400; color:var(--ink-faint);}
+.sheet summary::-webkit-details-marker{display:none;}
+/* The caret is the org tree's, so expanding a section here and opening a
+   branch in the table are visibly the same gesture. */
+.sheet summary::after{content:"\25be"; position:absolute; right:4px; top:9px;
+  color:var(--ink-faint); transition:transform .15s ease;}
+.sheet details[open] > summary::after{transform:rotate(180deg);}
+.sheet summary:hover{color:var(--accent);}
+
+/* The framed, scrolling body. The 200px cap is gone: the body now takes the
+   height the closed headers left over, so it is as tall as the window allows
+   rather than as tall as a number somebody picked.
+
+   The cap below is the floor, not the plan. A browser puts the contents of a
+   <details> inside a ::details-content box of its own, so making the <details>
+   a flex column stretches THAT box, not the body inside it, and the body
+   spills out at its natural height. The @supports block under this one hands
+   the stretching down to the body properly; the cap is what holds the shape
+   together in a browser that has not got the pseudo-element yet.
+   Javier, 10 Oct. */
+.sheet .sbody{max-height:min(340px, 32vh); overflow-y:auto; margin:0 0 10px;
+  padding:9px 12px; background:var(--surface-sunk, #f7f9fb);
+  border:1px solid var(--line2); border-radius:7px;
+  scrollbar-width:thin; scrollbar-color:var(--line-strong) transparent;}
+/* 13px, the same as the opening above them. At 12px the sections were the
+   SMALLEST text on a page whose whole job is to be read, which made them look
+   heavier than they are. More scrolling is the price and Javier took it.
+
+   The colour went with it. They were --ink-soft under an --ink opening, same
+   size and same line-height, and that one difference was enough for Javier to
+   read them as carrying far more words than the opening. They do not: the
+   opening is 251 words and the sections run 221 to 251. Javier, 13 Oct. */
+.sheet .sbody p{font-size:13px; line-height:1.6; margin:0 0 10px;
+  color:var(--ink);}
+.sheet .sbody p:last-child{margin-bottom:0;}
+.sheet .sbody b{color:var(--ink);}
+
+@supports selector(::details-content){
+  .sheet details[open]::details-content{flex:1 1 auto; min-height:0;
+    display:flex; flex-direction:column;}
+  .sheet .sbody{flex:1 1 auto; min-height:0; max-height:none;}
+}
+
+.sheet .close{flex:0 0 auto; margin:14px 0 0; padding-top:12px;
+  border-top:1px solid var(--line2); font-size:12.5px; color:var(--ink);}
+.sheet .close a{color:var(--accent); font-weight:600;}
+
+
+/* ---- the build page on a short window, 10 Oct ---------------------------
+   Six headers at their normal padding are 210 pixels, which on Javier's 551
+   laptop is most of the room the card has after the opening. So on short
+   windows the chrome gives way rather than the content: tighter headers, a
+   shorter opening, a smaller title. The open section keeps a readable body at
+   every height instead of collapsing to a sliver on the smallest one.
+
+   The cut is at 820, not 700. 700 was picked off the two screens that were in
+   front of me, and it left a hole: Javier's 731 window got the full-size
+   chrome with none of the room for it, so the frame came out at about 114
+   pixels, which he read straight away as "too small". Anything under 820 is a
+   window where the chrome costs more than it is worth. Javier, 10 Oct. */
+@media (max-height: 820px){
+  .rail{padding-top:10px;}
+  /* 5vh is cheap on a big monitor and expensive here, where every pixel it
+     takes comes straight out of the open section's body. */
+  .layer{padding-top:16px;}
+
+  /* THE TIGHTENING ONLY HAPPENS WHEN SOMETHING IS OPEN. First version ran it
+     all the time, which is why the initial screen at 1440x731 came back as
+     cramped: closed, the card is 467px in a 677px window, so nothing is
+     competing for space and there is nothing to buy.
+
+     Note what is NOT in here: the opening's height, the title, and the card's
+     top padding. Those are the things above the section you clicked, and
+     shrinking any of them on open would pull the whole stack upward, which is
+     the complaint this page has already been through twice. Only the headers,
+     the inner box and the closing line give way, and they are all below.
+     Javier, 11 Oct. */
+  .sheet:has(details[open]) summary{padding:6px 22px 6px 0; font-size:12px;}
+  .sheet:has(details[open]) summary::after{top:6px;}
+  .sheet:has(details[open]) .sbody{padding:8px 11px; margin-bottom:8px;}
+  .sheet:has(details[open]) .close{margin-top:10px; padding-top:9px; font-size:12px;}
+  .sheet:has(details[open]){padding-bottom:14px;}
+}
+
+
+/* The laptop. Four 100px cards and the tracker do not fit 551px of viewport,
+   so the rail goes back to roughly what it was. Javier, 11 Oct. */
+@media (max-height: 700px){
+  .rail{padding-top:6px;}
+  .rail .file + .file{margin-top:7px;}
+  .file{height:74px;}
+  .railttl{font-size:11.5px; margin-bottom:6px;}
+  .frame{padding-bottom:14px;}
+
+  /* The build page on the laptop, where the tightening DOES belong on all the
+     time. 551px of viewport has no slack even with every section shut: the
+     card already fills the window closed, so there is nothing to give back and
+     waiting for a section to open just means the body opens at 45px. The band
+     between 700 and 820 is the one with room to spare, and that is where the
+     open-only rules above do their work. Javier, 11 Oct. */
+  .sheet{padding:24px 26px 16px;}
+  .sheetx{top:13px; right:11px;}
+  .sheet h2{font-size:17px; margin-bottom:8px;}
+  .sheet .lede{max-height:22vh; padding:8px 11px;}
+  .sheet .lede p{font-size:12.5px; line-height:1.55; margin-bottom:8px;}
+  .secs{margin-top:8px;}
+  .sheet summary{padding:6px 22px 6px 0; font-size:12px;}
+  .sheet summary::after{top:6px;}
+  .sheet .sbody{padding:8px 11px; margin-bottom:8px;}
+  .sheet .sbody p{font-size:12.5px; line-height:1.5;}
+  .sheet .close{margin-top:10px; padding-top:9px; font-size:12px;}
+}
+
+/* Fixed columns need the long names to end in an ellipsis rather than spill,
+   the way the deal table already does. */
+#tree{table-layout:fixed;}
+#tree td.nm{overflow:hidden; text-overflow:ellipsis;}
+
+
+/* ---- the wide screen, 13 Oct -------------------------------------------
+   The split is a fixed proportion, so it is 35/65 at every width and the extra
+   room on a big monitor lands as whitespace rather than as more table. Fixed
+   columns on the people table took most of that out, and Javier still reads it
+   as stretched at 1680, so the big screen alone moves. 1280 and 1440 do not:
+   40/60 was rejected because the deal table's owner column truncates under
+   about 420px, and 37/63 at 1440 is close enough to that edge to leave alone. */
+@media (min-width: 1600px){
+  /* 37% was not enough of a difference to see. 40/60 only applies above 1600,
+     so the truncation worry from the earlier discussion does not reach it:
+     that was about 1440, and here the deal table gets WIDER, not narrower. */
+  .left{width:40%; flex:0 0 40%;}   /* the right column fills what is left */
+}
+
+/* ---- the AE view, 13 Oct ------------------------------------------------
+   A rep's screen offers no plan levers, because a rep cannot re-rate their own
+   plan. Week stays, since it is in every persona. */
+.levers.noplan .planlever{display:none;}
+/* The attribute loses to an author display:flex, so the emptied row kept
+   nine pixels and pushed the tiles below the persona box they are meant to
+   line up with. */
+.levers[hidden]{display:none;}
+/* With the four plan levers gone, week was the only flex child left and it
+   stretched across the whole pane. It keeps the width it has everywhere else,
+   so the control is the same object on every view. */
+.levers.noplan{justify-content:flex-end;}
+.levers.noplan #lever-week{flex:0 0 132px;}
+
+/* The leaderboard. No numbers on it by design: a published attainment plus a
+   shared rate is all it takes to work out anybody's commission, so the bar is
+   the only thing on the row and the figure lives behind your own hover. */
+/* Board rows are not clickable; the cursor moved to .cansel below. */
+#tree tr[data-kind="board"].sel{background:#e8eef5;}
+#tree .you{font-size:9.5px; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent); margin-left:5px; font-weight:700;}
+.findttl{margin:0 0 7px; font-size:11px; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink-faint); font-weight:700;}
+
+/* The two-bar comparison in WHAT THE NEXT DEAL IS WORTH. Same ink as a meter,
+   scaled to the larger of the pair, so equal bars mean an accelerator that
+   does nothing. */
+.tile .step{margin-top:auto; width:100%;}
+.tile .steprow{display:flex; align-items:center; gap:6px; margin-top:4px;}
+.tile .steprow s{display:block; height:7px; border-radius:3px;
+  background:var(--accent); min-width:2px; text-decoration:none;}
+.tile .steprow em{font-style:normal; font-size:8.5px; letter-spacing:.05em;
+  text-transform:uppercase; color:var(--ink-faint); white-space:nowrap;}
+
+/* The team table. The rank column is a number and a full stop, so the list
+   reads as a ranking rather than as a table that happens to be ordered. The
+   break marks the jump from the top five to wherever the rep actually sits. */
+#tree td.rk{color:var(--ink-faint); font-variant-numeric:tabular-nums;}
+#tree tr.sel td.rk, #tree tr.sel td{font-weight:650;}
+#tree tr.gap td{height:9px; padding:0; border:0;
+  background:linear-gradient(to bottom, transparent 4px, var(--line2) 4px,
+             var(--line2) 5px, transparent 5px);}
+
+/* The week lever when it rides on the view-name line. */
+.headrow{display:flex; align-items:center; gap:12px; margin-bottom:11px;}
+.headrow .viewtag{margin:0; flex:0 0 auto;}
+/* WIDER AND SHORTER. Moved up as a stacked card it was taller than the line
+   it joined, so it pushed the whole left column down and the spacing went
+   wrong. Laid out horizontally it is one row of label, track and value, and
+   the title line keeps the height it always had. Javier, 13 Oct. */
+#headlever{margin-left:auto; display:flex;}
+#headlever .lever{flex:0 0 300px; display:flex; align-items:center; gap:10px;
+  border:1px solid var(--line2); border-radius:6px; padding:3px 11px;
+  background:#fbfcfd;}
+#headlever .lever .lab{flex:0 0 auto; margin:0;}
+#headlever .lever .lab .q{margin-left:5px;}
+#headlever .lever .track{flex:1 1 auto; margin:0;}
+#headlever .lever .val{flex:0 0 auto; white-space:nowrap;}
+.headrow{min-height:30px;}
+
+/* The conditional half of the next-deal comparison. */
+.tile .steprow.maybe s{background:var(--brand-soft, #cdd9e6);}
+.tile .steprow.maybe em{color:var(--ink-faint);}
+
+/* THE SEGMENTED QUOTA BAR. The spec has always said this tile carries "the
+   reduced-rate zone, the flat middle and the accelerator"; it shipped as a
+   plain meter. The zones are drawn as background bands, so the thresholds are
+   visible WITHOUT adding a second tick to a bar that already has the pace on
+   it. Javier, 13 Oct: "too many ticks may be confusing". */
+.tile .meter.zoned{position:relative; background:transparent;}
+/* The bands were too faint to read as anything. Javier, 13 Oct. Stronger, and
+   the attainment card now repeats each colour beside the zone it names, so
+   the card and the bar are obviously the same object. */
+.tile .meter.zoned b{position:absolute; top:0; bottom:0; display:block;
+  background:#e4e9f0; border-right:1px solid #fff;}
+.tile .meter.zoned b.z1{background:#f0d6d2;}
+.tile .meter.zoned b.z3{background:#cfe3d4;}
+.tile .meter.zoned b.z4{background:#b6d6bf;}
+.hovcard .zsw{display:inline-block; width:9px; height:9px; border-radius:2px;
+  margin-right:7px; vertical-align:-1px; border:1px solid rgba(0,0,0,.08);}
+.hovcard .zsw.z1{background:#f0d6d2;} .hovcard .zsw.z2{background:#e4e9f0;}
+.hovcard .zsw.z3{background:#cfe3d4;} .hovcard .zsw.z4{background:#b6d6bf;}
+.tile .meter.zoned i, .tile .meter.zoned u{position:absolute; z-index:2;}
+.tile .meter.zoned i{top:0; bottom:0; left:0;}
+
+/* THE REP SCREEN INVERTS THE TWO TABLES. Deals 55%, standings 45%, against
+   35/65 on RevOps and the CEO, because a rep cares about their own deals and
+   only mildly about where everyone else sits. Recorded 7 Oct. */
+/* 50/50 AT EVERY SIZE. It was 45 below 1600 and 55 above; 45 was too tight for
+   seven columns and 55 crowded the findings, and the breakpoint bought nothing
+   either way. One rule. Javier, 13 Oct.
+
+   The opportunity column takes the extra: STAGE values are short and
+   left-aligned while ACV is right-aligned, so any slack in the middle of the
+   table pools between those two and reads as a gap. Give it to the one column
+   that always wants more and the gap closes by itself. */
+.view.repwide .left{width:50%; flex:0 0 50%;}
+/* A CSM between the two: wider than the admin's narrow table, narrower than a
+   rep's, because four tiles have to fit above it and a book is not read the
+   way a pipeline is. Javier, 18 Oct. */
+.view.repmid .left{width:42%; flex:0 0 42%;}
+/* These seven col rules were dead: the rep table writes its widths inline from
+   JS, which beats a class selector. Removed 13 Oct with the rest. */
+/* The two selects were filling whatever width the column had. */
+.picker select{max-width:210px;}
+#dealtab td.num.dim{color:var(--ink-faint);}
+/* The deal that tips them over a line. This is the moment the simulator
+   exists to show and it was nowhere on the screen. */
+#dealtab tr.crosses td{background:#eef4ea;}
+#dealtab tr.stale.crosses td{background:#f4f2e8;}  /* both true, both visible */
+#dealtab .xmark{color:var(--good, #2f7d53); font-size:8.5px; margin-left:5px;
+  vertical-align:1px;}
+
+/* The type picklist sits in the box header, right of the title. */
+#deals h4{display:flex; align-items:center; gap:10px;}
+#deals h4 #typeSel{margin-left:auto; font:inherit; font-size:10.5px;
+  text-transform:none; letter-spacing:0; font-weight:400; padding:2px 6px;
+  border:1px solid var(--line); border-radius:5px; background:#fbfcfd;
+  color:var(--ink-soft); cursor:pointer;}
+
+/* The opportunity cell: the name truncates, the marks do not. */
+#dealtab td.oppcell{display:flex; align-items:center; gap:0;}
+#dealtab td.oppcell .txt{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  min-width:0;}
+#dealtab td.oppcell .xmark{flex:0 0 auto;}
+
+/* ---- the left column breathes, 13 Oct ----------------------------------
+   The persona box ran the full width of the column for no reason: it holds
+   two selects and nothing else, so it wraps them now. The tile row then rises
+   to sit level with it, and the height that frees up goes to the FINDINGS,
+   which is the part worth reading, not to the people table. Javier's call. */
+/* REVERTED 13 Oct. Javier asked for the persona box to wrap its two selects
+   on the rep view instead of running the full column width. Three attempts at
+   it all cut the labels, because the selects are flex children under a
+   max-width and shrink-wrapping the box squeezes them: "RevOps (admin)"
+   became "RevOps (ac" and "Account Executive" lost its last letter. The box
+   runs full width again, which is the state that worked. Parked rather than
+   patched a fourth time. */
+
+/* THE DEAL BOX FILLS THE COLUMN. It was shrunk to its content to kill the
+   empty space under the last row on a seven-deal plan, and that only moved the
+   emptiness outside the frame, where a short panel floats over the page
+   background and reads as a broken layout rather than a short list. Javier,
+   13 Oct: "doesn't look great now". Neither state removes the space: on #clean
+   and #messy the rep has seven deals while the findings beside them run past
+   the fold, so the two columns hold very different amounts. Filling the frame
+   at least lands them on the same line. A 94-row quarter scrolls as before. */
+.view.repwide .left .box#deals, .view.repmid .left .box#deals{flex:1 1 auto;}
+.view.repwide .left .box#deals .scroll, .view.repmid .left .box#deals .scroll{flex:1 1 auto;}
+
+/* The team table keeps the height it needs and no more, so what the tiles
+   give back lands on the findings. */
+.view.repwide .box#orgbox, .view.repmid .box#orgbox{flex:0 0 auto;}
+.view.repwide #findings, .view.repmid #findings{flex:1 1 auto; min-height:0; overflow:auto;}
+.view.repwide .main{display:flex; flex-direction:column; min-height:0;}
+
+/* The word in the Close wk column, and the sentence above the table. */
+#dealtab .soon{font-style:normal; font-size:8.5px; letter-spacing:.05em;
+  text-transform:uppercase; color:var(--accent); font-weight:700;}
+.xnote{margin:0; padding:7px 10px 8px; font-size:11.5px; line-height:1.45;
+  color:var(--ink); background:#eef4ea; border-bottom:1px solid var(--line2);}
+/* The crossing line is a control on a multi-rep table. Javier, 15 Oct. */
+.xnote.xclick{cursor:pointer; border-radius:5px;}
+.xnote.xclick:hover{background:rgba(16,32,52,.045);}
+.xnote.xclick.on{background:rgba(47,125,83,.09);}
+.xnote .xmark{color:var(--good, #2f7d53); margin-right:5px; font-size:9px;}
+
+/* The selected row on the RevOps tree. The tree never narrows, so the mark
+   has to be strong enough to find again after reading the panels below. */
+/* ONLY WHERE A CLICK DOES SOMETHING. Selecting a row is the RevOps super-admin
+   power and nowhere else has it, so nowhere else gets the cursor that promises
+   it. The caret keeps its own pointer: expanding a team still works on every
+   view that has a tree. Javier, 14 Oct. */
+/* Folded into the hover rule above, which is where the cursor actually came
+   from all along; this one was redundant from the day it was written. */
+#tree tr.picked td{background:#dde7f2; font-weight:650;}
+#tree tr.picked td.nm{box-shadow:inset 3px 0 0 var(--accent);}
+
+/* "View as <name>" moved off the row and into the foot of the hover card on
+   14 Oct; its styling went with it, below. */
+
+/* THE FOOT OF A PERSON OR MANAGER CARD. Quiet on purpose: you are already
+   inside the card, it is in the same place every time, and the card's job is
+   the numbers, so the control does not need to compete with them. The whole
+   strip is the hit area, which is what pays for the lighter text, and the
+   hairline gives it a band of its own so it is learned once and then known. */
+.hovcard .cardgo{display:block; width:100%; margin:10px 0 0; padding:9px 13px 1px;
+  border:0; border-top:1px solid var(--line2); background:none;
+  font:inherit; font-size:11px; font-weight:650; letter-spacing:.01em;
+  color:var(--accent); text-align:right; cursor:pointer;}
+.hovcard .cardgo:hover{color:var(--ink); text-decoration:underline;}
+.hovcard .cardgo:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+
+/* The manager's findings block opens with the line that explains why its
+   actions are in the table rather than in the findings. Quiet: it is a rule
+   about the screen, not a finding. */
+.findlead{margin:0 0 8px; font-size:11.5px; line-height:1.45; color:var(--ink-soft);}
+/* The rep table's reason column. One mechanical clause per row, no tone colour:
+   the order is the message and a colour would argue with it. */
+#tree td.why{color:var(--ink-soft); font-variant-numeric:tabular-nums;}
+
+/* The team's own line on a manager's table. The roll-up reads as a parent the
+   way the tree's department rows do, and it is not pickable: there is no such
+   person to filter the deals to. */
+#tree tr.teamrow td{background:#f4f7fa; font-weight:650; border-bottom:1px solid var(--line);}
+#tree tr.teamrow td.why{font-weight:400; color:var(--ink-soft);}
+
+/* The at-target verdict beside a name on the participation card. The existing
+   detail span already carries good and bad; this only makes it read as a chip
+   rather than as trailing prose. */
+.hovcard dl .d.good{color:#1a6b47;} .hovcard dl .d.bad{color:#b3261e;}
+.hovcard dl .d{font-style:normal; font-size:9px; font-weight:700; letter-spacing:.05em;
+  text-transform:uppercase; margin-left:6px;}
+
+/* The permission "?" sits with the pickers it explains, not in the heading the
+   dropdowns made redundant. */
+.picker{display:flex; align-items:center; gap:8px;}
+.picker .q{flex:0 0 auto;}
+/* And the one on the manager's block heading. */
+#orgttl .q{margin-left:6px;}
+
+/* ---- a split bar: solid is banked, light is still open ------------------
+   The CS track's LENGTH is retention and always was. What it never said is
+   how much of that length is already renewed and how much is still to come
+   up, which is the question Javier put to it on 18 Oct. One bar, two tones,
+   rather than the second bar that made the leaderboard unreadable. */
+.bar.split i{opacity:.34;}
+.bar.split b{position:absolute; left:0; top:0; bottom:0; border-radius:2px;
+  background:#7c9cc0;}
+.bar.split.good b{background:#1a6b47;}
+.bar.split.warn b{background:#a8620a;}
+.bar.split.bad  b{background:#b3261e;}
+.tile .meter.split i{opacity:.34;}
+.tile .meter.split b{position:absolute; left:0; top:0; bottom:0; border-radius:6px;
+  background:#5f7895;}
+.tile.good .meter.split b{background:#2f7d55;}
+.tile.warn .meter.split b{background:#c8881f;}
+.tile.bad  .meter.split b{background:#b4433b;}
+
+/* ---- the leaderboard's two bars, each carrying its own word -------------
+   Stacked and unlabelled they read as one broken bar. */
+.twin{display:flex; align-items:center; gap:7px;}
+.twin + .twin{margin-top:4px;}
+.twin em{font-style:normal; font-size:10px; color:#6b7785; letter-spacing:.2px;
+  flex:0 0 56px; text-align:right;}
+.twin .bar{flex:1 1 auto; min-width:0;}
+tr.legend td{font-size:10.5px; color:#6b7785; padding-top:7px; line-height:1.35;}
+
+/* ---- the holding card names the two tones the bar draws -----------------
+   Same device as the AE attainment card's band swatches: the row carries the
+   colour so the reader never holds a legend in their head. The two values
+   match `.bar.split` and `.meter.split`, solid for renewed and the same
+   colour at the bar's own opacity for what is still up. */
+.hovcard .csw{display:inline-block; width:9px; height:9px; border-radius:2px;
+  margin-right:7px; vertical-align:-1px;}
+.hovcard .csw.held{background:#1a6b47;}
+.hovcard .csw.open{background:#1a6b47; opacity:.34;}
+
+/* ---- the leaderboard's header and its measure switch -------------------
+   The board had no header at all, which is why it was the one table on the
+   screen that did not say what its column was. The switch is two segments in
+   the header cell rather than a control bar above it, because it belongs to
+   that column and nothing else. */
+#orgbox table.tree thead th{font-size:10.5px; letter-spacing:.3px;
+  text-transform:uppercase; color:#6b7785; font-weight:600; padding-bottom:5px;}
+.segs{display:inline-flex; margin-left:9px; border:1px solid #d7dee7;
+  border-radius:4px; overflow:hidden; vertical-align:-2px;}
+.segs b{font-weight:500; font-size:10px; letter-spacing:.2px; padding:2px 7px;
+  cursor:pointer; color:#6b7785; background:#fff; text-transform:none;}
+.segs b + b{border-left:1px solid #d7dee7;}
+.segs b.on{background:#eef2f7; color:#14181f;}
+.segs b:hover{background:#f6f8fb;}
+
+/* ---- the retention ladder, on the CSM's "next one is worth" tile --------
+   A straight track, unlike the bent one the holding tile draws, because this
+   tile's job is the distance to the gate and the full-pay line from well
+   below them, and the bend pins the gate to the left edge. Both lines are
+   dotted so neither reads as the pace tick the other tiles carry. */
+.tile .meter.ladder u{background:transparent; width:2px; top:-2px; bottom:-2px;
+  border-left:2px dotted #6b7785;}
+.tile .meter.ladder u.dot2{border-left-color:#14181f;}
+
+/* The leaderboard's new header stays put when the board scrolls, the way the
+   deal table's does. A CS rep outside the top five carries seven rows, which
+   is taller than the box at 1706 and every size below it. */
+#orgbox table.tree thead th{position:sticky; top:0; background:#fff; z-index:3;}
+
+
+
+/* THE BAR IS THE POINT OF THE COLUMN. It went 26 to 21 to 14 across two
+   passes, each time giving the slack to the effort column, which is the
+   opposite of what Javier asked for: "so the line gets bigger". The effort
+   text needs about a third and the bar takes the rest. */
+
+
+/* The leaderboard's measure switch takes the "?" styling: blue on white, and
+   inverted when it is the one selected. Javier, 19 Oct. */
+.segs{border-color:#1f4e79;}
+.segs b{color:#1f4e79;}
+.segs b + b{border-left-color:#1f4e79;}
+.segs b.on{background:#1f4e79; color:#fff;}
+.segs b:hover{background:#eaf0f6;}
+.segs b.on:hover{background:#1f4e79;}
+
+/* A card you can click to keep gets a pointer, so the gesture is discoverable
+   rather than something to be told about. */
+.hovcard:not(.pinned){cursor:pointer;}
+
+/* ---- the card's fact rows, and why the figure was wrapping ---------------
+   The grid was `auto 1fr`, so the LABEL took whatever it wanted and the value
+   got the remainder. On the at-target card a label is a name plus a chip, so
+   "99% renewed" folded onto a second line under every single person. `1fr
+   auto` sizes the value to its content and lets the label take the slack,
+   which is the right way round everywhere: values on these cards are short
+   and labels are not. Javier, 19 Oct. */
+.hovcard dl{grid-template-columns:1fr auto;}
+/* The chip STAYS INLINE. Dropping it under the name was my first answer to
+   the wrapping, and measured it was the wrong one: the grid was the cause, and
+   forcing a second line made every row two lines instead of the few whose name
+   and chip genuinely do not fit. Inline takes the at-target card from 497px to
+   452px and puts most rows on one line. Measured 19 Oct, both ways. */
+
+/* A chip never breaks mid-phrase. "ALSO SHORT ON EXPANSION" was splitting
+   after "ON" and wrapping the last word onto its own line, which reads as a
+   layout accident rather than a label. It now either sits beside the name or
+   drops whole. */
+.hovcard dl dt .d{white-space:nowrap;}
+
+/* ======================================================================
+   THE PHONE PAGE, and the band above it
+   ======================================================================
+   Three widths, not two. Above 1366 the console has the room it was designed
+   for. Between 820 and 1366, the split-screen case, it keeps a minimum width
+   and the page scrolls sideways rather than clipping: that reader is usually
+   Javier with a document open beside it, not a stranger, so nothing is lost
+   even if it is not comfortable. Below 820 the console is replaced outright.
+   Decided 11 Oct, built 19 Oct. */
+
+.phone{display:none;}
+
+@media (min-width:821px){
+  /* The split-screen band. A floor rather than a reflow, because every table
+     on the console is a ledger and a ledger does not reflow. */
+  body{min-width:1180px;}
+}
+
+@media (max-width:820px){
+  .frame{display:none !important;}
+  /* THE CONSOLE PINS THE PAGE. `html,body{height:100%; overflow:hidden}` is
+     what stops the app scrolling behind itself, and the phone page inherited
+     it, so everything below the first screen was laid out and unreachable: the
+     page measured 2,420px tall and `window.scrollTo` did nothing. An article
+     scrolls. Found by scrolling it, which is the only way this shows up.
+     19 Oct. */
+  html, body{height:auto; overflow:visible;}
+  body{min-width:0; background:#fff;}
+  .phone{display:block; max-width:34rem; margin:0 auto; padding:30px 16px 48px;
+    font:400 16px/1.62 var(--ui, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+    color:#14181f; -webkit-text-size-adjust:100%;}
+
+  .phone header{margin-bottom:26px;}
+  .phone h1{margin:0; font-size:23px; line-height:1.25; letter-spacing:-.01em;}
+  .phone .by{margin:5px 0 0; font-size:15px; color:#6b7785;}
+
+  .phone p{margin:0 0 18px;}
+  .phone p b{font-weight:650;}
+
+  /* The screenshots carry a border because without one a pale console on a
+     white page has no edge and reads as part of the article. */
+  .phone figure{margin:26px 0;}
+  .phone figure img{display:block; width:100%; height:auto; border:1px solid #dde3ea;
+    border-radius:7px;}
+  .phone figcaption{margin-top:8px; font-size:13.5px; line-height:1.5; color:#6b7785;}
+
+  /* THE LINE GOES FIRST. I had it under the screenshots, where it reads as an
+     apology for them. At the top it is the frame the reader needs before the
+     first image, and it stops them hunting for a console that is not there.
+     Javier, 19 Oct. */
+  .phone .laptop{margin:0 0 26px; padding:14px 16px; background:#f3f6f9;
+    border-radius:8px; font-size:15px; line-height:1.55; color:#3d4854;}
+
+  .phone .links{display:flex; flex-direction:column; gap:11px; margin-top:34px;
+    padding-top:24px; border-top:1px solid #e7ecf1;}
+  .phone .links a{display:block; padding:13px 16px; border:1px solid #1f4e79;
+    border-radius:7px; color:#1f4e79; text-decoration:none; font-weight:600;
+    font-size:15.5px; text-align:center;}
+  .phone .links a:first-child{background:#1f4e79; color:#fff;}
+}
+
+
+/* ---- the tutorial overlay --------------------------------------------
+   Ported from tour-harness.html, 20 Oct.
+
+   Z-ORDER, AND WHY. The real hovercard is z-index 400 and the tour hovers a
+   real row, so unlike the harness's fake tip the card cannot sit under it:
+   #tour-card is 410 and the confirm and the toast are above that. The inert
+   layer stays at 205, below the hovercard, which is harmless because the
+   hovercard is not a control. */
+#tour-spot{position:absolute; border-radius:9px; pointer-events:none; z-index:200;
+  display:none; box-shadow:0 0 0 9999px rgba(16,22,30,.46);
+  outline:2px solid rgba(255,255,255,.85); outline-offset:0;}
+#tour-block{position:fixed; inset:0; z-index:205; display:none;}
+.ringed{position:relative; z-index:206; outline:2px solid #1f4e79; outline-offset:4px;
+  border-radius:8px; background:var(--panel, #fff);}
+#tour-card{position:absolute; z-index:410; width:380px; background:#fff; border-radius:12px;
+  padding:19px 21px 16px; box-shadow:0 14px 40px rgba(16,22,30,.3); display:none;}
+#tour-card.wide{width:470px; padding:26px 28px 22px;}
+#tour-card h3{margin:0 0 8px; font-size:16px; padding-right:24px;}
+#tour-card.wide h3{font-size:20px; margin-bottom:10px;}
+#tour-card p{margin:0 0 15px; font-size:13.8px; line-height:1.58; color:#2b323b;}
+#tour-card.wide p{font-size:14.6px; line-height:1.62;}
+#tour-card .row{display:flex; align-items:center; gap:9px; justify-content:flex-end;}
+#tour-card button{font:inherit; font-size:13px; border-radius:7px; padding:7px 17px;
+  cursor:pointer; border:1px solid #c9d0d9; background:#fff; color:#14181f;}
+#tour-card button.primary{background:#1f4e79; color:#fff; border-color:#1f4e79;}
+#tour-card .x{position:absolute; top:11px; right:12px; border:0; background:transparent;
+  font-size:18px; line-height:1; padding:2px 5px; color:#6b7785; cursor:pointer;}
+#tour-confirm{position:fixed; inset:0; z-index:460; background:rgba(16,22,30,.5);
+  display:none; align-items:center; justify-content:center;}
+#tour-confirm .c{background:#fff; border-radius:12px; padding:21px 23px; width:400px;
+  box-shadow:0 18px 50px rgba(16,22,30,.35);}
+#tour-confirm h3{margin:0 0 8px; font-size:16px;}
+#tour-confirm p{margin:0 0 16px; font-size:13.8px; line-height:1.58; color:#2b323b;}
+#tour-confirm .row{display:flex; gap:9px; justify-content:flex-end;}
+#tour-confirm button{font:inherit; font-size:13px; border-radius:7px; padding:7px 17px;
+  cursor:pointer; border:1px solid #c9d0d9; background:#fff; color:#14181f;}
+#tour-confirm button.primary{background:#1f4e79; color:#fff; border-color:#1f4e79;}
+#tour-done{position:fixed; left:50%; bottom:22px; transform:translateX(-50%); z-index:460;
+  background:#20242b; color:#eef2f7; padding:10px 16px; border-radius:8px; font-size:13px;
+  display:none; box-shadow:0 10px 28px rgba(16,22,30,.3);}
+@keyframes tourbeat{0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)}}
+.file.beat{animation:tourbeat 1.15s ease-in-out infinite;
+  box-shadow:0 2px 12px rgba(31,78,121,.22);}
+
+/* The phone never gets the tour: the console it walks around is not shown
+   below 820px, so TAKE THE TOUR is not there to press either. */
+@media (max-width:820px){
+  #tour-spot, #tour-block, #tour-card, #tour-confirm, #tour-done{display:none !important;}
+}
+
+/* ---- the build-page gist, ported from the harness --------------------
+   356px under the button, with a curve drawn from the button into it. The
+   content is cloned from #buildlayer, so the type here is the only thing
+   that is this panel's own. */
+#tour-build{position:absolute; width:356px; z-index:406; background:#fff; border-radius:10px;
+  padding:15px 17px 13px; box-shadow:0 14px 40px rgba(16,22,30,.3); display:none;}
+#tour-build h2{margin:0 0 7px; font-size:15px;}
+#tour-build > p{margin:0 0 11px; font-size:12.3px; line-height:1.55; color:#2b323b;}
+#tour-build .sec{display:flex; justify-content:space-between; align-items:center;
+  gap:10px; padding:7px 2px; border-top:1px solid var(--line2, #e9edf2);
+  font-size:12.3px;}
+#tour-build .sec b{font-weight:600;}
+#tour-build .sec b span{font-weight:400; color:#6b7785;}
+#tour-build .sec span.c{color:#6b7785; font-size:11px;}
+#tour-build .sec.open b{color:#1f4e79;}
+/* Clipped, with the fade saying so. The real section runs to several
+   paragraphs and the point here is only that it opens. */
+#tour-build .secbody{font-size:11.8px; line-height:1.55; color:#2b323b; padding:0 2px;
+  max-height:0; opacity:0; overflow:hidden; transition:max-height .45s ease, opacity .3s ease;}
+#tour-build .secbody.on{max-height:92px; opacity:1; padding:0 2px 9px;
+  -webkit-mask-image:linear-gradient(#000 64px, transparent 92px);
+  mask-image:linear-gradient(#000 64px, transparent 92px);}
+#tour-build .secbody p{margin:0;}
+#tour-arrow{position:absolute; z-index:406; display:none; pointer-events:none;}
+
+/* A LEVER OFF ITS BASELINE. Marked on the handle and the label rather than
+   with a separate badge: four levers and four badges is a row of furniture,
+   and the thing a reader wants to know is which handle they moved. The
+   what-if line above the view is what names them in words. */
+.lever.moved .track u{background:#1f4e79; border-color:#1f4e79;
+  box-shadow:0 0 0 3px rgba(31,78,121,.18);}
+.lever.moved .lab{color:#1f4e79; font-weight:600;}
+.lever.moved .val{color:#1f4e79; font-weight:600;}
+.lever .track{touch-action:none; cursor:pointer;}
+.lever .track u{cursor:grab;}
+.lever.moved .track u:active{cursor:grabbing;}
+
+/* ---- the what-if line ------------------------------------------------
+   Accent, not amber or red: a what-if is not a problem and borrowing the
+   finding tones would make the reader hunt for something broken. The left
+   rule is the same device the findings use, so it reads as part of the view
+   rather than a browser notification. One line that wraps, never a stack. */
+#whatif{margin:0 0 12px; padding:9px 13px; border-radius:7px;
+  background:#eef3f9; border-left:3px solid #1f4e79; color:#243040;
+  font-size:13px; line-height:1.5;}
+#whatif b{font-weight:650; color:#1f4e79;}
+#whatif a{color:#1f4e79; margin-left:4px; white-space:nowrap;}
+#whatif[hidden]{display:none;}
+
+/* THE SIMULATOR LINE. Same shape as the what-if line above it, because they are
+   the same kind of object, one line above the levers that is not a finding. The
+   colour is the difference and it is the point: the what-if is the tool's own
+   blue, this takes the tone of the finding behind it, which for capacity is red.
+   One line that wraps, never a stack, and no close button, because the spec says
+   not dismissible. */
+#simline{margin:0 0 12px; padding:9px 13px; border-radius:7px;
+  background:var(--bad-soft); border-left:3px solid var(--bad); color:#243040;
+  font-size:13px; line-height:1.5;}
+#simline a{color:var(--bad); margin-left:4px; white-space:nowrap;}
+#simline[hidden]{display:none;}
+
+/* A finding the what-if moved. The tag carries the words because a coloured
+   edge alone would be a fourth tone competing with red, amber and green; the
+   finding keeps its own tone and gains a label. It stays while the lever is
+   off its baseline rather than fading, because a rep arriving at their own
+   view a minute later needs it as much as the person who pulled the handle. */
+.finding.wif{box-shadow:inset 3px 0 0 #1f4e79;}
+.wiftag{display:inline-block; margin-left:7px; padding:1px 6px; border-radius:4px;
+  background:#e4ecf5; color:#1f4e79; font-size:10.5px; font-style:normal;
+  font-weight:600; letter-spacing:.02em; vertical-align:1px; white-space:nowrap;}
