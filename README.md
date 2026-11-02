@@ -4,7 +4,7 @@ Answer twenty questions about your sales organisation. Get a compensation plan b
 your answers, with the problems in it named, and a simulated quarter running on that plan so
 you can see who it pays and who it punishes before it becomes somebody's income.
 
-**Live:** _(URL goes here once it is hosted)_
+**Live:** [javierjotah.github.io/comp-plan-simulator](https://javierjotah.github.io/comp-plan-simulator/)
 
 Built by Javier J. Hernandez. [linkedin.com/in/javierjotah](https://www.linkedin.com/in/javierjotah)
 

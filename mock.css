@@ -1203,19 +1203,53 @@ tr.legend td{font-size:10.5px; color:#6b7785; padding-top:7px; line-height:1.35;
    for. Between 820 and 1366, the split-screen case, it keeps a minimum width
    and the page scrolls sideways rather than clipping: that reader is usually
    Javier with a document open beside it, not a stranger, so nothing is lost
-   even if it is not comfortable. Below 820 the console is replaced outright.
-   Decided 11 Oct, built 19 Oct. */
+   even if it is not comfortable. Below 820, OR under 500 tall, the console is
+   replaced outright by the phone article. Decided 11 Oct, built 19 Oct, and
+   widened from width-only to narrow-or-short on 2 Nov, because a phone turned
+   sideways is 900 wide and 430 tall and was clearing the width test. */
 
 .phone{display:none;}
 
-@media (min-width:821px){
+/* NARROW OR SHORT, NOT NARROW ALONE. Width on its own asks the wrong question.
+   A phone held upright is 390 to 450 wide and gets the article. The same phone
+   turned sideways is 844 to 932, clears 820, and was handed the console on a
+   430px-tall screen, scrolling sideways inside the 1180 floor below. That is
+   the worst page this site can serve anyone, and it was the rule working
+   exactly as written. Javier, 2 Nov.
+
+   Height separates them cleanly: every phone in landscape is under 500px tall
+   and no laptop is, short of somebody dragging a window into a strip, who gets
+   the article and can drag it back. */
+@media (min-width:821px) and (min-height:501px){
   /* The split-screen band. A floor rather than a reflow, because every table
      on the console is a ledger and a ledger does not reflow. */
   body{min-width:1180px;}
 }
 
-@media (max-width:820px){
+@media (max-width:820px), (max-height:500px){
   .frame{display:none !important;}
+  /* AND THE QUESTIONNAIRE LAYER, which did not exist when this block was
+     written. This rule hid the console on 19 Oct because the console was the
+     only thing the page opened on. The wizard was merged in on 26 Oct and
+     nothing brought it back here, so from that day a phone loaded the article
+     and then had a questionnaire drawn over the top of it. You could answer
+     twenty questions on a phone, get a plan, tap into the simulator, and land
+     back on the article you were never shown, because the console behind it
+     was hidden by the line above. Javier found it on his own phone, 2 Nov,
+     and `visual-goldens` had been photographing it the whole time without
+     anyone looking at the picture.
+
+     Hidden rather than switched off: the layer costs nothing while invisible,
+     and this is the same treatment `.frame` gets one line up, so there is one
+     rule here rather than two mechanisms. The article is the whole product at
+     this width and says so itself: "Open it on a laptop to use it."
+
+     SCREEN ONLY, AND THAT IS NOT TIDINESS. The rule sits in its own block
+     below rather than here, because a printed page is about 816px wide,
+     which is under 820, and the one-pager prints from inside `#wizard`.
+     Written into this block it hid the plan at print time and the one-pager
+     came out blank. layer-check caught it in the same run that confirmed the
+     phone fix: the tallest one-pager went from 896px to 0px. 2 Nov. */
   /* THE CONSOLE PINS THE PAGE. `html,body{height:100%; overflow:hidden}` is
      what stops the app scrolling behind itself, and the phone page inherited
      it, so everything below the first screen was laid out and unreachable: the
@@ -1303,9 +1337,22 @@ tr.legend td{font-size:10.5px; color:#6b7785; padding-top:7px; line-height:1.35;
   box-shadow:0 2px 12px rgba(31,78,121,.22);}
 
 /* The phone never gets the tour: the console it walks around is not shown
-   below 820px, so TAKE THE TOUR is not there to press either. */
-@media (max-width:820px){
-  #tour-spot, #tour-block, #tour-card, #tour-confirm, #tour-done{display:none !important;}
+   below 820px or under 500 tall, so TAKE THE TOUR is not there to press
+   either. */
+/* The questionnaire layer, hidden on a phone. See the note in the 820 block
+   above for why this is `screen` and not bare `max-width`. */
+@media screen and (max-width:820px), screen and (max-height:500px){
+  #wizard{display:none !important;}
+}
+
+@media (max-width:820px), (max-height:500px){
+  /* EVERY TOP-LEVEL PIECE OF THE TOUR, not the five that were remembered.
+     `#tour-arrow` and `#tour-build` are positioned siblings of these and were
+     missing, so two of the seven could still paint over the article. Found
+     2 Nov while fixing the wizard, by listing the ids rather than trusting the
+     list. The rest are children of these and go with their parents. */
+  #tour-spot, #tour-block, #tour-card, #tour-confirm, #tour-done,
+  #tour-arrow, #tour-build{display:none !important;}
 }
 
 /* ---- the build-page gist, ported from the harness --------------------
